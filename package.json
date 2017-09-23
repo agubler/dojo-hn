@@ -11,7 +11,7 @@
     "sw-precache-webpack-plugin": "^0.11.4"
   },
   "devDependencies": {
-    "@dojo/cli-build-webpack": "beta2",
+    "@dojo/cli-build-webpack": "file:deps/dojo-cli-build-webpack-2.0.0-alpha.1.tgz",
     "@dojo/cli-test-intern": "beta2",
     "@dojo/interfaces": "next",
     "@dojo/loader": "next",
