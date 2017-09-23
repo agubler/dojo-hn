@@ -5,7 +5,7 @@
     "@dojo/core": "next",
     "@dojo/has": "next",
     "@dojo/i18n": "next",
-    "@dojo/routing": "beta2",
+    "@dojo/routing": "file:deps/dojo-routing-2.0.0-alpha.1.tgz",
     "@dojo/shim": "next",
     "@dojo/widget-core": "next",
     "sw-precache-webpack-plugin": "^0.11.4"
