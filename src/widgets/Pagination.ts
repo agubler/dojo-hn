@@ -5,14 +5,14 @@ import { Link } from '@dojo/routing/Link';
 
 import * as css from './styles/menuItem.m.css';
 
-export interface MenuItemProperties {
+export interface PaginationProperties {
 	selected: boolean;
 	cat: string;
 	imgUrl?: string;
 }
 
 @theme(css)
-export class MenuItem extends ThemeableMixin(WidgetBase)<MenuItemProperties> {
+export class Pagination extends ThemeableMixin(WidgetBase)<PaginationProperties> {
 
 	render() {
 		const { selected } = this.properties;
