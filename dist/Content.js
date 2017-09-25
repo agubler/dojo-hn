@@ -5,5 +5,127 @@
  * All rights reserved
  * 
  */
-dojoWebpackJsonp_hnpwa([0],{66:function(e,t,n){var r=this&&this.__extends||function(){var e=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var n in t)t.hasOwnProperty(n)&&(e[n]=t[n])};return function(t,n){function r(){this.constructor=t}e(t,n),t.prototype=null===n?Object.create(n):(r.prototype=n.prototype,new r)}}(),o=this&&this.__decorate||function(e,t,n,r){var o,s=arguments.length,i=s<3?t:null===r?r=Object.getOwnPropertyDescriptor(t,n):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)i=Reflect.decorate(e,t,n,r);else for(var c=e.length-1;c>=0;c--)(o=e[c])&&(i=(s<3?o(i):s>3?o(t,n,i):o(t,n))||i);return s>3&&i&&Object.defineProperty(t,n,i),i};Object.defineProperty(t,"__esModule",{value:!0});var s=n(9),i=n(4),c=n(21),a=n(69),p=n(68),l=function(e){function t(){return null!==e&&e.apply(this,arguments)||this}return r(t,e),t.prototype.render=function(){var e=this.properties.data;return i.v("main",{classes:this.classes(p.root)},e.map(function(e,t){return i.w(a.Article,{key:t,index:t,item:e,pageNumber:1})}))},t=o([c.theme(p)],t)}(c.ThemeableMixin(s.WidgetBase));t.Content=l},67:function(e,t){e.exports={" _key":"article",root:"_25Pck9HL",pageNumber:"_2w4AqmJQ",post:"_3XB5fE0_",title:"_3LLrYYZ1",details:"_1V_edkRC",link:"_2iNp8P4w",comments:"_2cpI_Mjd"}},68:function(e,t){e.exports={" _key":"content",root:"_2JwAJ3_m"}},69:function(e,t,n){var r=this&&this.__extends||function(){var e=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var n in t)t.hasOwnProperty(n)&&(e[n]=t[n])};return function(t,n){function r(){this.constructor=t}e(t,n),t.prototype=null===n?Object.create(n):(r.prototype=n.prototype,new r)}}(),o=this&&this.__decorate||function(e,t,n,r){var o,s=arguments.length,i=s<3?t:null===r?r=Object.getOwnPropertyDescriptor(t,n):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)i=Reflect.decorate(e,t,n,r);else for(var c=e.length-1;c>=0;c--)(o=e[c])&&(i=(s<3?o(i):s>3?o(t,n,i):o(t,n))||i);return s>3&&i&&Object.defineProperty(t,n,i),i};Object.defineProperty(t,"__esModule",{value:!0});var s=n(9),i=n(4),c=n(21),a=n(67),p=function(e){function t(){return null!==e&&e.apply(this,arguments)||this}return r(t,e),t.prototype.render=function(){var e=this.properties,t=e.item,n=e.index,r=e.pageNumber;return i.v("article",{classes:this.classes(a.root)},[i.v("span",{classes:this.classes(a.pageNumber)},[""+n*r]),i.v("div",{classes:this.classes(a.post)},[i.v("h2",[i.v("a",{href:t.url,target:"none",classes:this.classes(a.title)},[t.title])]),i.v("p",{classes:this.classes(a.details)},[t.points+" points by ",i.v("a",{classes:this.classes(a.link)},[t.user])," "+t.time_ago+" ",i.v("a",{classes:this.classes(a.link,a.comments)},[t.comments_count+" comments"])])])])},t=o([c.theme(a)],t)}(c.ThemeableMixin(s.WidgetBase));t.Article=p}});
+dojoWebpackJsonp_hnpwa([0],{
+
+/***/ 66:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var WidgetBase_1 = __webpack_require__(9);
+var d_1 = __webpack_require__(4);
+var Themeable_1 = __webpack_require__(21);
+var Article_1 = __webpack_require__(69);
+var css = __webpack_require__(68);
+var Content = (function (_super) {
+    __extends(Content, _super);
+    function Content() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Content.prototype.render = function () {
+        var data = this.properties.data;
+        return d_1.v('main', { classes: this.classes(css.root) }, data.map(function (item, index) {
+            return d_1.w(Article_1.Article, { key: index, index: index, item: item, pageNumber: 1 });
+        }));
+    };
+    Content = __decorate([
+        Themeable_1.theme(css)
+    ], Content);
+    return Content;
+}(Themeable_1.ThemeableMixin(WidgetBase_1.WidgetBase)));
+exports.Content = Content;
+
+
+/***/ }),
+
+/***/ 67:
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+module.exports = {" _key":"article","root":"_25Pck9HL","pageNumber":"_2w4AqmJQ","post":"_3XB5fE0_","title":"_3LLrYYZ1","details":"_1V_edkRC","link":"_2iNp8P4w","comments":"_2cpI_Mjd"};
+
+/***/ }),
+
+/***/ 68:
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+module.exports = {" _key":"content","root":"_2JwAJ3_m"};
+
+/***/ }),
+
+/***/ 69:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var WidgetBase_1 = __webpack_require__(9);
+var d_1 = __webpack_require__(4);
+var Themeable_1 = __webpack_require__(21);
+var css = __webpack_require__(67);
+var Article = (function (_super) {
+    __extends(Article, _super);
+    function Article() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Article.prototype.render = function () {
+        var _a = this.properties, item = _a.item, index = _a.index, pageNumber = _a.pageNumber;
+        return d_1.v('article', { classes: this.classes(css.root) }, [
+            d_1.v('span', { classes: this.classes(css.pageNumber) }, ["" + index * pageNumber]),
+            d_1.v('div', { classes: this.classes(css.post) }, [
+                d_1.v('h2', [
+                    d_1.v('a', { href: item.url, target: 'none', classes: this.classes(css.title) }, [item.title])
+                ]),
+                d_1.v('p', { classes: this.classes(css.details) }, [
+                    item.points + " points by ",
+                    d_1.v('a', { classes: this.classes(css.link) }, [item.user]),
+                    " " + item.time_ago + " ",
+                    d_1.v('a', { classes: this.classes(css.link, css.comments) }, [item.comments_count + " comments"])
+                ])
+            ]),
+        ]);
+    };
+    Article = __decorate([
+        Themeable_1.theme(css)
+    ], Article);
+    return Article;
+}(Themeable_1.ThemeableMixin(WidgetBase_1.WidgetBase)));
+exports.Article = Article;
+
+
+/***/ })
+
+});
 //# sourceMappingURL=Content.js.map
