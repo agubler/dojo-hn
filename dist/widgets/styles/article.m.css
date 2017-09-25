@@ -6,7 +6,6 @@
 .pageNumber {
 	font-size: 24px;
 	margin-right: 16px;
-	color: #333;
 	text-align: right;
 	min-width: 48px;
 }
@@ -17,24 +16,22 @@
 
 .title {
 	display: block;
-	font-weight: 400;
 	margin-bottom: 8px;
-	line-height: 1.2;
 	text-decoration: none;
 	color: #000;
 }
 
 .details {
 	color: #666;
+	font-size: 12px;
 }
 
 .link {
 	text-decoration: underline;
-	cursor: auto;
+	cursor: pointer;
 }
 
 .comments {
 	padding-left: 8px;
-	margin-left: .5em;
 	border-left: 1px solid #ccc;
 }
