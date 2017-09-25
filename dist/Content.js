@@ -7,7 +7,7 @@
  */
 dojoWebpackJsonp_hnpwa([0],{
 
-/***/ 70:
+/***/ 69:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __extends = (this && this.__extends) || (function () {
@@ -31,8 +31,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var WidgetBase_1 = __webpack_require__(7);
 var d_1 = __webpack_require__(1);
 var Themeable_1 = __webpack_require__(22);
-var Article_1 = __webpack_require__(73);
-var css = __webpack_require__(72);
+var Article_1 = __webpack_require__(72);
+var css = __webpack_require__(71);
 var Content = (function (_super) {
     __extends(Content, _super);
     function Content() {
@@ -54,7 +54,7 @@ exports.Content = Content;
 
 /***/ }),
 
-/***/ 71:
+/***/ 70:
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
@@ -62,7 +62,7 @@ module.exports = {" _key":"article","root":"_25Pck9HL","pageNumber":"_2w4AqmJQ",
 
 /***/ }),
 
-/***/ 72:
+/***/ 71:
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
@@ -70,7 +70,7 @@ module.exports = {" _key":"content","root":"_2JwAJ3_m"};
 
 /***/ }),
 
-/***/ 73:
+/***/ 72:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __extends = (this && this.__extends) || (function () {
@@ -94,7 +94,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var WidgetBase_1 = __webpack_require__(7);
 var d_1 = __webpack_require__(1);
 var Themeable_1 = __webpack_require__(22);
-var css = __webpack_require__(71);
+var css = __webpack_require__(70);
 var Article = (function (_super) {
     __extends(Article, _super);
     function Article() {
