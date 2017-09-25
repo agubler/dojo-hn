@@ -1,5 +1,4 @@
-.spinner {
-	margin: 100px auto;
+/* .spinner {
 	width: 40px;
 	height: 40px;
 	position: relative;
@@ -32,4 +31,24 @@
 	} 50% {
 		transform: scale(1.0);
 	}
-}
+} */
+
+
+.spinner {
+	width: 44px;
+	height: 44px;
+	background-color: #333;
+	display: block;
+
+	border-radius: 100%;
+	animation: sk-scaleout 1.0s infinite ease-in-out;
+  }
+
+  @keyframes sk-scaleout {
+	0% {
+	  transform: scale(0);
+	} 100% {
+	  transform: scale(1.0);
+	  opacity: 0;
+	}
+  }
