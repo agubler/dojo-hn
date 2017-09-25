@@ -7,7 +7,7 @@
  */
 dojoWebpackJsonp_hnpwa([0],{
 
-/***/ 69:
+/***/ 51:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __extends = (this && this.__extends) || (function () {
@@ -28,11 +28,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var WidgetBase_1 = __webpack_require__(7);
-var d_1 = __webpack_require__(1);
-var Themeable_1 = __webpack_require__(22);
-var Article_1 = __webpack_require__(72);
-var css = __webpack_require__(71);
+var WidgetBase_1 = __webpack_require__(11);
+var d_1 = __webpack_require__(8);
+var Themeable_1 = __webpack_require__(25);
+var Article_1 = __webpack_require__(54);
+var css = __webpack_require__(53);
 var Content = (function (_super) {
     __extends(Content, _super);
     function Content() {
@@ -54,7 +54,7 @@ exports.Content = Content;
 
 /***/ }),
 
-/***/ 70:
+/***/ 52:
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
@@ -62,7 +62,7 @@ module.exports = {" _key":"article","root":"_25Pck9HL","pageNumber":"_2w4AqmJQ",
 
 /***/ }),
 
-/***/ 71:
+/***/ 53:
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
@@ -70,7 +70,7 @@ module.exports = {" _key":"content","root":"_2JwAJ3_m"};
 
 /***/ }),
 
-/***/ 72:
+/***/ 54:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __extends = (this && this.__extends) || (function () {
@@ -91,10 +91,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var WidgetBase_1 = __webpack_require__(7);
-var d_1 = __webpack_require__(1);
-var Themeable_1 = __webpack_require__(22);
-var css = __webpack_require__(70);
+var WidgetBase_1 = __webpack_require__(11);
+var d_1 = __webpack_require__(8);
+var Themeable_1 = __webpack_require__(25);
+var css = __webpack_require__(52);
 var Article = (function (_super) {
     __extends(Article, _super);
     function Article() {

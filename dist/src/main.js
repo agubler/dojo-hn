@@ -162,7 +162,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.oe = function(err) { console.error(err); throw err; };
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 68);
+/******/ 	return __webpack_require__(__webpack_require__.s = 50);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -190,388 +190,10 @@ var globalObject = (function () {
 })();
 exports.default = globalObject;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(21)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15)))
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var lang_1 = __webpack_require__(5);
-var Symbol_1 = __webpack_require__(3);
-var maquette_1 = __webpack_require__(23);
-/**
- * The symbol identifier for a WNode type
- */
-exports.WNODE = Symbol_1.default('Identifier for a WNode.');
-/**
- * The symbol identifier for a HNode type
- */
-exports.HNODE = Symbol_1.default('Identifier for a HNode.');
-/**
- * Helper function that returns true if the `DNode` is a `WNode` using the `type` property
- */
-function isWNode(child) {
-    return Boolean(child && (typeof child !== 'string') && child.type === exports.WNODE);
-}
-exports.isWNode = isWNode;
-/**
- * Helper function that returns true if the `DNode` is a `HNode` using the `type` property
- */
-function isHNode(child) {
-    return Boolean(child && (typeof child !== 'string') && child.type === exports.HNODE);
-}
-exports.isHNode = isHNode;
-function decorate(dNodes, modifier, predicate) {
-    var nodes = Array.isArray(dNodes) ? dNodes.slice() : [dNodes];
-    while (nodes.length) {
-        var node = nodes.pop();
-        if (node) {
-            if (!predicate || predicate(node)) {
-                modifier(node);
-            }
-            if ((isWNode(node) || isHNode(node)) && node.children) {
-                nodes = nodes.concat(node.children);
-            }
-        }
-    }
-    return dNodes;
-}
-exports.decorate = decorate;
-/**
- * Wrapper function for calls to create a widget.
- */
-function w(widgetConstructor, properties, children) {
-    if (children === void 0) { children = []; }
-    return {
-        children: children,
-        widgetConstructor: widgetConstructor,
-        properties: properties,
-        type: exports.WNODE
-    };
-}
-exports.w = w;
-function v(tag, propertiesOrChildren, children) {
-    if (propertiesOrChildren === void 0) { propertiesOrChildren = {}; }
-    if (children === void 0) { children = []; }
-    var properties = propertiesOrChildren;
-    if (Array.isArray(propertiesOrChildren)) {
-        children = propertiesOrChildren;
-        properties = {};
-    }
-    var classes = properties.classes;
-    if (typeof classes === 'function') {
-        classes = classes();
-        properties = lang_1.assign(properties, { classes: classes });
-    }
-    return {
-        tag: tag,
-        children: children,
-        properties: properties,
-        render: function () {
-            return maquette_1.h(this.tag, this.properties, this.vNodes);
-        },
-        type: exports.HNODE
-    };
-}
-exports.v = v;
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var Map_1 = __webpack_require__(6);
-var aspect_1 = __webpack_require__(39);
-var Destroyable_1 = __webpack_require__(38);
-/**
- * Determines is the value is Actionable (has a `.do` function)
- *
- * @param value the value to check
- * @returns boolean indicating is the value is Actionable
- */
-function isActionable(value) {
-    return Boolean(value && typeof value.do === 'function');
-}
-/**
- * Resolve listeners.
- */
-function resolveListener(listener) {
-    return isActionable(listener) ? function (event) { return listener.do({ event: event }); } : listener;
-}
-/**
- * Handles an array of handles
- *
- * @param handles an array of handles
- * @returns a single Handle for handles passed
- */
-function handlesArraytoHandle(handles) {
-    return {
-        destroy: function () {
-            handles.forEach(function (handle) { return handle.destroy(); });
-        }
-    };
-}
-/**
- * Map of computed regular expressions, keyed by string
- */
-var regexMap = new Map_1.default();
-/**
- * Determines is the event type glob has been matched
- *
- * @returns boolean that indicates if the glob is matched
- */
-function isGlobMatch(globString, targetString) {
-    if (typeof targetString === 'string' && typeof globString === 'string' && globString.indexOf('*') !== -1) {
-        var regex = void 0;
-        if (regexMap.has(globString)) {
-            regex = regexMap.get(globString);
-        }
-        else {
-            regex = new RegExp("^" + globString.replace(/\*/g, '.*') + "$");
-            regexMap.set(globString, regex);
-        }
-        return regex.test(targetString);
-    }
-    else {
-        return globString === targetString;
-    }
-}
-exports.isGlobMatch = isGlobMatch;
-/**
- * Event Class
- */
-var Evented = (function (_super) {
-    __extends(Evented, _super);
-    /**
-     * @constructor
-     * @param options The constructor argurments
-     */
-    function Evented(options) {
-        if (options === void 0) { options = {}; }
-        var _this = _super.call(this) || this;
-        /**
-         * map of listeners keyed by event type
-         */
-        _this.listenersMap = new Map_1.default();
-        /**
-         * Catch all handler for various call signatures. The signatures are defined in
-         * `BaseEventedEvents`.  You can add your own event type -> handler types by extending
-         * `BaseEventedEvents`.  See example for details.
-         *
-         * @param args
-         *
-         * @example
-         *
-         * interface WidgetBaseEvents extends BaseEventedEvents {
-         *     (type: 'properties:changed', handler: PropertiesChangedHandler): Handle;
-         * }
-         * class WidgetBase extends Evented {
-         *    on: WidgetBaseEvents;
-         * }
-         *
-         * @return {any}
-         */
-        _this.on = function () {
-            var _this = this;
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            if (args.length === 2) {
-                var _a = args, type_1 = _a[0], listeners = _a[1];
-                if (Array.isArray(listeners)) {
-                    var handles = listeners.map(function (listener) { return aspect_1.on(_this.listenersMap, type_1, resolveListener(listener)); });
-                    return handlesArraytoHandle(handles);
-                }
-                else {
-                    return aspect_1.on(this.listenersMap, type_1, resolveListener(listeners));
-                }
-            }
-            else if (args.length === 1) {
-                var listenerMapArg_1 = args[0];
-                var handles = Object.keys(listenerMapArg_1).map(function (type) { return _this.on(type, listenerMapArg_1[type]); });
-                return handlesArraytoHandle(handles);
-            }
-            else {
-                throw new TypeError('Invalid arguments');
-            }
-        };
-        var listeners = options.listeners;
-        if (listeners) {
-            _this.own(_this.on(listeners));
-        }
-        return _this;
-    }
-    /**
-     * Emits the event objet for the specified type
-     *
-     * @param event the event to emit
-     */
-    Evented.prototype.emit = function (event) {
-        var _this = this;
-        this.listenersMap.forEach(function (method, type) {
-            if (isGlobMatch(type, event.type)) {
-                method.call(_this, event);
-            }
-        });
-    };
-    return Evented;
-}(Destroyable_1.Destroyable));
-exports.Evented = Evented;
-exports.default = Evented;
-
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var has_1 = __webpack_require__(4);
-var global_1 = __webpack_require__(0);
-var util_1 = __webpack_require__(19);
-exports.Symbol = global_1.default.Symbol;
-if (!has_1.default('es6-symbol')) {
-    /**
-     * Throws if the value is not a symbol, used internally within the Shim
-     * @param  {any}    value The value to check
-     * @return {symbol}       Returns the symbol or throws
-     */
-    var validateSymbol_1 = function validateSymbol(value) {
-        if (!isSymbol(value)) {
-            throw new TypeError(value + ' is not a symbol');
-        }
-        return value;
-    };
-    var defineProperties_1 = Object.defineProperties;
-    var defineProperty_1 = Object.defineProperty;
-    var create_1 = Object.create;
-    var objPrototype_1 = Object.prototype;
-    var globalSymbols_1 = {};
-    var getSymbolName_1 = (function () {
-        var created = create_1(null);
-        return function (desc) {
-            var postfix = 0;
-            var name;
-            while (created[String(desc) + (postfix || '')]) {
-                ++postfix;
-            }
-            desc += String(postfix || '');
-            created[desc] = true;
-            name = '@@' + desc;
-            // FIXME: Temporary guard until the duplicate execution when testing can be
-            // pinned down.
-            if (!Object.getOwnPropertyDescriptor(objPrototype_1, name)) {
-                defineProperty_1(objPrototype_1, name, {
-                    set: function (value) {
-                        defineProperty_1(this, name, util_1.getValueDescriptor(value));
-                    }
-                });
-            }
-            return name;
-        };
-    }());
-    var InternalSymbol_1 = function Symbol(description) {
-        if (this instanceof InternalSymbol_1) {
-            throw new TypeError('TypeError: Symbol is not a constructor');
-        }
-        return Symbol(description);
-    };
-    exports.Symbol = global_1.default.Symbol = function Symbol(description) {
-        if (this instanceof Symbol) {
-            throw new TypeError('TypeError: Symbol is not a constructor');
-        }
-        var sym = Object.create(InternalSymbol_1.prototype);
-        description = (description === undefined ? '' : String(description));
-        return defineProperties_1(sym, {
-            __description__: util_1.getValueDescriptor(description),
-            __name__: util_1.getValueDescriptor(getSymbolName_1(description))
-        });
-    };
-    /* Decorate the Symbol function with the appropriate properties */
-    defineProperty_1(exports.Symbol, 'for', util_1.getValueDescriptor(function (key) {
-        if (globalSymbols_1[key]) {
-            return globalSymbols_1[key];
-        }
-        return (globalSymbols_1[key] = exports.Symbol(String(key)));
-    }));
-    defineProperties_1(exports.Symbol, {
-        keyFor: util_1.getValueDescriptor(function (sym) {
-            var key;
-            validateSymbol_1(sym);
-            for (key in globalSymbols_1) {
-                if (globalSymbols_1[key] === sym) {
-                    return key;
-                }
-            }
-        }),
-        hasInstance: util_1.getValueDescriptor(exports.Symbol.for('hasInstance'), false, false),
-        isConcatSpreadable: util_1.getValueDescriptor(exports.Symbol.for('isConcatSpreadable'), false, false),
-        iterator: util_1.getValueDescriptor(exports.Symbol.for('iterator'), false, false),
-        match: util_1.getValueDescriptor(exports.Symbol.for('match'), false, false),
-        observable: util_1.getValueDescriptor(exports.Symbol.for('observable'), false, false),
-        replace: util_1.getValueDescriptor(exports.Symbol.for('replace'), false, false),
-        search: util_1.getValueDescriptor(exports.Symbol.for('search'), false, false),
-        species: util_1.getValueDescriptor(exports.Symbol.for('species'), false, false),
-        split: util_1.getValueDescriptor(exports.Symbol.for('split'), false, false),
-        toPrimitive: util_1.getValueDescriptor(exports.Symbol.for('toPrimitive'), false, false),
-        toStringTag: util_1.getValueDescriptor(exports.Symbol.for('toStringTag'), false, false),
-        unscopables: util_1.getValueDescriptor(exports.Symbol.for('unscopables'), false, false)
-    });
-    /* Decorate the InternalSymbol object */
-    defineProperties_1(InternalSymbol_1.prototype, {
-        constructor: util_1.getValueDescriptor(exports.Symbol),
-        toString: util_1.getValueDescriptor(function () { return this.__name__; }, false, false)
-    });
-    /* Decorate the Symbol.prototype */
-    defineProperties_1(exports.Symbol.prototype, {
-        toString: util_1.getValueDescriptor(function () { return 'Symbol (' + validateSymbol_1(this).__description__ + ')'; }),
-        valueOf: util_1.getValueDescriptor(function () { return validateSymbol_1(this); })
-    });
-    defineProperty_1(exports.Symbol.prototype, exports.Symbol.toPrimitive, util_1.getValueDescriptor(function () { return validateSymbol_1(this); }));
-    defineProperty_1(exports.Symbol.prototype, exports.Symbol.toStringTag, util_1.getValueDescriptor('Symbol', false, false, true));
-    defineProperty_1(InternalSymbol_1.prototype, exports.Symbol.toPrimitive, util_1.getValueDescriptor(exports.Symbol.prototype[exports.Symbol.toPrimitive], false, false, true));
-    defineProperty_1(InternalSymbol_1.prototype, exports.Symbol.toStringTag, util_1.getValueDescriptor(exports.Symbol.prototype[exports.Symbol.toStringTag], false, false, true));
-}
-/**
- * A custom guard function that determines if an object is a symbol or not
- * @param  {any}       value The value to check to see if it is a symbol or not
- * @return {is symbol}       Returns true if a symbol or not (and narrows the type guard)
- */
-function isSymbol(value) {
-    return (value && ((typeof value === 'symbol') || (value['@@toStringTag'] === 'Symbol'))) || false;
-}
-exports.isSymbol = isSymbol;
-/**
- * Fill any missing well known symbols if the native Symbol is missing them
- */
-['hasInstance', 'isConcatSpreadable', 'iterator', 'species', 'replace', 'search', 'split', 'match', 'toPrimitive',
-    'toStringTag', 'unscopables', 'observable'].forEach(function (wellKnown) {
-    if (!exports.Symbol[wellKnown]) {
-        Object.defineProperty(exports.Symbol, wellKnown, util_1.getValueDescriptor(exports.Symbol.for(wellKnown), false, false));
-    }
-});
-exports.default = exports.Symbol;
-
-
-/***/ }),
-/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -580,10 +202,10 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-var has_1 = __webpack_require__(26);
+var has_1 = __webpack_require__(18);
 var global_1 = __webpack_require__(0);
 exports.default = has_1.default;
-__export(__webpack_require__(26));
+__export(__webpack_require__(18));
 /* ECMAScript 6 and 7 Features */
 /* Array */
 has_1.add('es6-array', function () {
@@ -763,14 +385,408 @@ has_1.add('dom-mutationobserver', function () {
 
 
 /***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var has_1 = __webpack_require__(1);
+var global_1 = __webpack_require__(0);
+var util_1 = __webpack_require__(14);
+exports.Symbol = global_1.default.Symbol;
+if (!has_1.default('es6-symbol')) {
+    /**
+     * Throws if the value is not a symbol, used internally within the Shim
+     * @param  {any}    value The value to check
+     * @return {symbol}       Returns the symbol or throws
+     */
+    var validateSymbol_1 = function validateSymbol(value) {
+        if (!isSymbol(value)) {
+            throw new TypeError(value + ' is not a symbol');
+        }
+        return value;
+    };
+    var defineProperties_1 = Object.defineProperties;
+    var defineProperty_1 = Object.defineProperty;
+    var create_1 = Object.create;
+    var objPrototype_1 = Object.prototype;
+    var globalSymbols_1 = {};
+    var getSymbolName_1 = (function () {
+        var created = create_1(null);
+        return function (desc) {
+            var postfix = 0;
+            var name;
+            while (created[String(desc) + (postfix || '')]) {
+                ++postfix;
+            }
+            desc += String(postfix || '');
+            created[desc] = true;
+            name = '@@' + desc;
+            // FIXME: Temporary guard until the duplicate execution when testing can be
+            // pinned down.
+            if (!Object.getOwnPropertyDescriptor(objPrototype_1, name)) {
+                defineProperty_1(objPrototype_1, name, {
+                    set: function (value) {
+                        defineProperty_1(this, name, util_1.getValueDescriptor(value));
+                    }
+                });
+            }
+            return name;
+        };
+    }());
+    var InternalSymbol_1 = function Symbol(description) {
+        if (this instanceof InternalSymbol_1) {
+            throw new TypeError('TypeError: Symbol is not a constructor');
+        }
+        return Symbol(description);
+    };
+    exports.Symbol = global_1.default.Symbol = function Symbol(description) {
+        if (this instanceof Symbol) {
+            throw new TypeError('TypeError: Symbol is not a constructor');
+        }
+        var sym = Object.create(InternalSymbol_1.prototype);
+        description = (description === undefined ? '' : String(description));
+        return defineProperties_1(sym, {
+            __description__: util_1.getValueDescriptor(description),
+            __name__: util_1.getValueDescriptor(getSymbolName_1(description))
+        });
+    };
+    /* Decorate the Symbol function with the appropriate properties */
+    defineProperty_1(exports.Symbol, 'for', util_1.getValueDescriptor(function (key) {
+        if (globalSymbols_1[key]) {
+            return globalSymbols_1[key];
+        }
+        return (globalSymbols_1[key] = exports.Symbol(String(key)));
+    }));
+    defineProperties_1(exports.Symbol, {
+        keyFor: util_1.getValueDescriptor(function (sym) {
+            var key;
+            validateSymbol_1(sym);
+            for (key in globalSymbols_1) {
+                if (globalSymbols_1[key] === sym) {
+                    return key;
+                }
+            }
+        }),
+        hasInstance: util_1.getValueDescriptor(exports.Symbol.for('hasInstance'), false, false),
+        isConcatSpreadable: util_1.getValueDescriptor(exports.Symbol.for('isConcatSpreadable'), false, false),
+        iterator: util_1.getValueDescriptor(exports.Symbol.for('iterator'), false, false),
+        match: util_1.getValueDescriptor(exports.Symbol.for('match'), false, false),
+        observable: util_1.getValueDescriptor(exports.Symbol.for('observable'), false, false),
+        replace: util_1.getValueDescriptor(exports.Symbol.for('replace'), false, false),
+        search: util_1.getValueDescriptor(exports.Symbol.for('search'), false, false),
+        species: util_1.getValueDescriptor(exports.Symbol.for('species'), false, false),
+        split: util_1.getValueDescriptor(exports.Symbol.for('split'), false, false),
+        toPrimitive: util_1.getValueDescriptor(exports.Symbol.for('toPrimitive'), false, false),
+        toStringTag: util_1.getValueDescriptor(exports.Symbol.for('toStringTag'), false, false),
+        unscopables: util_1.getValueDescriptor(exports.Symbol.for('unscopables'), false, false)
+    });
+    /* Decorate the InternalSymbol object */
+    defineProperties_1(InternalSymbol_1.prototype, {
+        constructor: util_1.getValueDescriptor(exports.Symbol),
+        toString: util_1.getValueDescriptor(function () { return this.__name__; }, false, false)
+    });
+    /* Decorate the Symbol.prototype */
+    defineProperties_1(exports.Symbol.prototype, {
+        toString: util_1.getValueDescriptor(function () { return 'Symbol (' + validateSymbol_1(this).__description__ + ')'; }),
+        valueOf: util_1.getValueDescriptor(function () { return validateSymbol_1(this); })
+    });
+    defineProperty_1(exports.Symbol.prototype, exports.Symbol.toPrimitive, util_1.getValueDescriptor(function () { return validateSymbol_1(this); }));
+    defineProperty_1(exports.Symbol.prototype, exports.Symbol.toStringTag, util_1.getValueDescriptor('Symbol', false, false, true));
+    defineProperty_1(InternalSymbol_1.prototype, exports.Symbol.toPrimitive, util_1.getValueDescriptor(exports.Symbol.prototype[exports.Symbol.toPrimitive], false, false, true));
+    defineProperty_1(InternalSymbol_1.prototype, exports.Symbol.toStringTag, util_1.getValueDescriptor(exports.Symbol.prototype[exports.Symbol.toStringTag], false, false, true));
+}
+/**
+ * A custom guard function that determines if an object is a symbol or not
+ * @param  {any}       value The value to check to see if it is a symbol or not
+ * @return {is symbol}       Returns true if a symbol or not (and narrows the type guard)
+ */
+function isSymbol(value) {
+    return (value && ((typeof value === 'symbol') || (value['@@toStringTag'] === 'Symbol'))) || false;
+}
+exports.isSymbol = isSymbol;
+/**
+ * Fill any missing well known symbols if the native Symbol is missing them
+ */
+['hasInstance', 'isConcatSpreadable', 'iterator', 'species', 'replace', 'search', 'split', 'match', 'toPrimitive',
+    'toStringTag', 'unscopables', 'observable'].forEach(function (wellKnown) {
+    if (!exports.Symbol[wellKnown]) {
+        Object.defineProperty(exports.Symbol, wellKnown, util_1.getValueDescriptor(exports.Symbol.for(wellKnown), false, false));
+    }
+});
+exports.default = exports.Symbol;
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var Map_1 = __webpack_require__(4);
+var aspect_1 = __webpack_require__(30);
+var Destroyable_1 = __webpack_require__(29);
+/**
+ * Determines is the value is Actionable (has a `.do` function)
+ *
+ * @param value the value to check
+ * @returns boolean indicating is the value is Actionable
+ */
+function isActionable(value) {
+    return Boolean(value && typeof value.do === 'function');
+}
+/**
+ * Resolve listeners.
+ */
+function resolveListener(listener) {
+    return isActionable(listener) ? function (event) { return listener.do({ event: event }); } : listener;
+}
+/**
+ * Handles an array of handles
+ *
+ * @param handles an array of handles
+ * @returns a single Handle for handles passed
+ */
+function handlesArraytoHandle(handles) {
+    return {
+        destroy: function () {
+            handles.forEach(function (handle) { return handle.destroy(); });
+        }
+    };
+}
+/**
+ * Map of computed regular expressions, keyed by string
+ */
+var regexMap = new Map_1.default();
+/**
+ * Determines is the event type glob has been matched
+ *
+ * @returns boolean that indicates if the glob is matched
+ */
+function isGlobMatch(globString, targetString) {
+    if (typeof targetString === 'string' && typeof globString === 'string' && globString.indexOf('*') !== -1) {
+        var regex = void 0;
+        if (regexMap.has(globString)) {
+            regex = regexMap.get(globString);
+        }
+        else {
+            regex = new RegExp("^" + globString.replace(/\*/g, '.*') + "$");
+            regexMap.set(globString, regex);
+        }
+        return regex.test(targetString);
+    }
+    else {
+        return globString === targetString;
+    }
+}
+exports.isGlobMatch = isGlobMatch;
+/**
+ * Event Class
+ */
+var Evented = (function (_super) {
+    __extends(Evented, _super);
+    /**
+     * @constructor
+     * @param options The constructor argurments
+     */
+    function Evented(options) {
+        if (options === void 0) { options = {}; }
+        var _this = _super.call(this) || this;
+        /**
+         * map of listeners keyed by event type
+         */
+        _this.listenersMap = new Map_1.default();
+        /**
+         * Catch all handler for various call signatures. The signatures are defined in
+         * `BaseEventedEvents`.  You can add your own event type -> handler types by extending
+         * `BaseEventedEvents`.  See example for details.
+         *
+         * @param args
+         *
+         * @example
+         *
+         * interface WidgetBaseEvents extends BaseEventedEvents {
+         *     (type: 'properties:changed', handler: PropertiesChangedHandler): Handle;
+         * }
+         * class WidgetBase extends Evented {
+         *    on: WidgetBaseEvents;
+         * }
+         *
+         * @return {any}
+         */
+        _this.on = function () {
+            var _this = this;
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            if (args.length === 2) {
+                var _a = args, type_1 = _a[0], listeners = _a[1];
+                if (Array.isArray(listeners)) {
+                    var handles = listeners.map(function (listener) { return aspect_1.on(_this.listenersMap, type_1, resolveListener(listener)); });
+                    return handlesArraytoHandle(handles);
+                }
+                else {
+                    return aspect_1.on(this.listenersMap, type_1, resolveListener(listeners));
+                }
+            }
+            else if (args.length === 1) {
+                var listenerMapArg_1 = args[0];
+                var handles = Object.keys(listenerMapArg_1).map(function (type) { return _this.on(type, listenerMapArg_1[type]); });
+                return handlesArraytoHandle(handles);
+            }
+            else {
+                throw new TypeError('Invalid arguments');
+            }
+        };
+        var listeners = options.listeners;
+        if (listeners) {
+            _this.own(_this.on(listeners));
+        }
+        return _this;
+    }
+    /**
+     * Emits the event objet for the specified type
+     *
+     * @param event the event to emit
+     */
+    Evented.prototype.emit = function (event) {
+        var _this = this;
+        this.listenersMap.forEach(function (method, type) {
+            if (isGlobMatch(type, event.type)) {
+                method.call(_this, event);
+            }
+        });
+    };
+    return Evented;
+}(Destroyable_1.Destroyable));
+exports.Evented = Evented;
+exports.default = Evented;
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var iterator_1 = __webpack_require__(6);
+var global_1 = __webpack_require__(0);
+var object_1 = __webpack_require__(13);
+var has_1 = __webpack_require__(1);
+__webpack_require__(2);
+exports.Map = global_1.default.Map;
+if (!has_1.default('es6-map')) {
+    exports.Map = (_a = (function () {
+            function Map(iterable) {
+                var _this = this;
+                this._keys = [];
+                this._values = [];
+                this[Symbol.toStringTag] = 'Map';
+                if (iterable) {
+                    iterator_1.forOf(iterable, function (value) {
+                        _this.set(value[0], value[1]);
+                    });
+                }
+            }
+            /**
+             * An alternative to Array.prototype.indexOf using Object.is
+             * to check for equality. See http://mzl.la/1zuKO2V
+             */
+            Map.prototype._indexOfKey = function (keys, key) {
+                for (var i = 0, length_1 = keys.length; i < length_1; i++) {
+                    if (object_1.is(keys[i], key)) {
+                        return i;
+                    }
+                }
+                return -1;
+            };
+            Object.defineProperty(Map.prototype, "size", {
+                get: function () {
+                    return this._keys.length;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Map.prototype.clear = function () {
+                this._keys.length = this._values.length = 0;
+            };
+            Map.prototype.delete = function (key) {
+                var index = this._indexOfKey(this._keys, key);
+                if (index < 0) {
+                    return false;
+                }
+                this._keys.splice(index, 1);
+                this._values.splice(index, 1);
+                return true;
+            };
+            Map.prototype.entries = function () {
+                var _this = this;
+                var values = this._keys.map(function (key, i) {
+                    return [key, _this._values[i]];
+                });
+                return new iterator_1.ShimIterator(values);
+            };
+            Map.prototype.forEach = function (callback, context) {
+                var keys = this._keys;
+                var values = this._values;
+                for (var i = 0, length_2 = keys.length; i < length_2; i++) {
+                    callback.call(context, values[i], keys[i], this);
+                }
+            };
+            Map.prototype.get = function (key) {
+                var index = this._indexOfKey(this._keys, key);
+                return index < 0 ? undefined : this._values[index];
+            };
+            Map.prototype.has = function (key) {
+                return this._indexOfKey(this._keys, key) > -1;
+            };
+            Map.prototype.keys = function () {
+                return new iterator_1.ShimIterator(this._keys);
+            };
+            Map.prototype.set = function (key, value) {
+                var index = this._indexOfKey(this._keys, key);
+                index = index < 0 ? this._keys.length : index;
+                this._keys[index] = key;
+                this._values[index] = value;
+                return this;
+            };
+            Map.prototype.values = function () {
+                return new iterator_1.ShimIterator(this._values);
+            };
+            Map.prototype[Symbol.iterator] = function () {
+                return this.entries();
+            };
+            return Map;
+        }()),
+        _a[Symbol.species] = _a,
+        _a);
+}
+exports.default = exports.Map;
+var _a;
+
+
+/***/ }),
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var object_1 = __webpack_require__(12);
-var object_2 = __webpack_require__(12);
+var object_1 = __webpack_require__(13);
+var object_2 = __webpack_require__(13);
 exports.assign = object_2.assign;
 var slice = Array.prototype.slice;
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -1010,104 +1026,577 @@ exports.createCompositeHandle = createCompositeHandle;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var iterator_1 = __webpack_require__(9);
-var global_1 = __webpack_require__(0);
-var object_1 = __webpack_require__(12);
-var has_1 = __webpack_require__(4);
-__webpack_require__(3);
-exports.Map = global_1.default.Map;
-if (!has_1.default('es6-map')) {
-    exports.Map = (_a = (function () {
-            function Map(iterable) {
-                var _this = this;
-                this._keys = [];
-                this._values = [];
-                this[Symbol.toStringTag] = 'Map';
-                if (iterable) {
-                    iterator_1.forOf(iterable, function (value) {
-                        _this.set(value[0], value[1]);
-                    });
+var string_1 = __webpack_require__(33);
+__webpack_require__(2);
+var staticDone = { done: true, value: undefined };
+/**
+ * A class that _shims_ an iterator interface on array like objects.
+ */
+var ShimIterator = (function () {
+    function ShimIterator(list) {
+        this._nextIndex = -1;
+        if (isIterable(list)) {
+            this._nativeIterator = list[Symbol.iterator]();
+        }
+        else {
+            this._list = list;
+        }
+    }
+    ;
+    /**
+     * Return the next iteration result for the Iterator
+     */
+    ShimIterator.prototype.next = function () {
+        if (this._nativeIterator) {
+            return this._nativeIterator.next();
+        }
+        if (!this._list) {
+            return staticDone;
+        }
+        if (++this._nextIndex < this._list.length) {
+            return {
+                done: false,
+                value: this._list[this._nextIndex]
+            };
+        }
+        return staticDone;
+    };
+    ;
+    ShimIterator.prototype[Symbol.iterator] = function () {
+        return this;
+    };
+    return ShimIterator;
+}());
+exports.ShimIterator = ShimIterator;
+/**
+ * A type guard for checking if something has an Iterable interface
+ *
+ * @param value The value to type guard against
+ */
+function isIterable(value) {
+    return value && typeof value[Symbol.iterator] === 'function';
+}
+exports.isIterable = isIterable;
+/**
+ * A type guard for checking if something is ArrayLike
+ *
+ * @param value The value to type guard against
+ */
+function isArrayLike(value) {
+    return value && typeof value.length === 'number';
+}
+exports.isArrayLike = isArrayLike;
+/**
+ * Returns the iterator for an object
+ *
+ * @param iterable The iterable object to return the iterator for
+ */
+function get(iterable) {
+    if (isIterable(iterable)) {
+        return iterable[Symbol.iterator]();
+    }
+    else if (isArrayLike(iterable)) {
+        return new ShimIterator(iterable);
+    }
+}
+exports.get = get;
+/**
+ * Shims the functionality of `for ... of` blocks
+ *
+ * @param iterable The object the provides an interator interface
+ * @param callback The callback which will be called for each item of the iterable
+ * @param thisArg Optional scope to pass the callback
+ */
+function forOf(iterable, callback, thisArg) {
+    var broken = false;
+    function doBreak() {
+        broken = true;
+    }
+    /* We need to handle iteration of double byte strings properly */
+    if (isArrayLike(iterable) && typeof iterable === 'string') {
+        var l = iterable.length;
+        for (var i = 0; i < l; ++i) {
+            var char = iterable[i];
+            if ((i + 1) < l) {
+                var code = char.charCodeAt(0);
+                if ((code >= string_1.HIGH_SURROGATE_MIN) && (code <= string_1.HIGH_SURROGATE_MAX)) {
+                    char += iterable[++i];
                 }
             }
-            /**
-             * An alternative to Array.prototype.indexOf using Object.is
-             * to check for equality. See http://mzl.la/1zuKO2V
-             */
-            Map.prototype._indexOfKey = function (keys, key) {
-                for (var i = 0, length_1 = keys.length; i < length_1; i++) {
-                    if (object_1.is(keys[i], key)) {
-                        return i;
-                    }
+            callback.call(thisArg, char, iterable, doBreak);
+            if (broken) {
+                return;
+            }
+        }
+    }
+    else {
+        var iterator = get(iterable);
+        if (iterator) {
+            var result = iterator.next();
+            while (!result.done) {
+                callback.call(thisArg, result.value, iterable, doBreak);
+                if (broken) {
+                    return;
                 }
-                return -1;
-            };
-            Object.defineProperty(Map.prototype, "size", {
-                get: function () {
-                    return this._keys.length;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Map.prototype.clear = function () {
-                this._keys.length = this._values.length = 0;
-            };
-            Map.prototype.delete = function (key) {
-                var index = this._indexOfKey(this._keys, key);
-                if (index < 0) {
-                    return false;
-                }
-                this._keys.splice(index, 1);
-                this._values.splice(index, 1);
-                return true;
-            };
-            Map.prototype.entries = function () {
-                var _this = this;
-                var values = this._keys.map(function (key, i) {
-                    return [key, _this._values[i]];
-                });
-                return new iterator_1.ShimIterator(values);
-            };
-            Map.prototype.forEach = function (callback, context) {
-                var keys = this._keys;
-                var values = this._values;
-                for (var i = 0, length_2 = keys.length; i < length_2; i++) {
-                    callback.call(context, values[i], keys[i], this);
-                }
-            };
-            Map.prototype.get = function (key) {
-                var index = this._indexOfKey(this._keys, key);
-                return index < 0 ? undefined : this._values[index];
-            };
-            Map.prototype.has = function (key) {
-                return this._indexOfKey(this._keys, key) > -1;
-            };
-            Map.prototype.keys = function () {
-                return new iterator_1.ShimIterator(this._keys);
-            };
-            Map.prototype.set = function (key, value) {
-                var index = this._indexOfKey(this._keys, key);
-                index = index < 0 ? this._keys.length : index;
-                this._keys[index] = key;
-                this._values[index] = value;
-                return this;
-            };
-            Map.prototype.values = function () {
-                return new iterator_1.ShimIterator(this._values);
-            };
-            Map.prototype[Symbol.iterator] = function () {
-                return this.entries();
-            };
-            return Map;
-        }()),
-        _a[Symbol.species] = _a,
-        _a);
+                result = iterator.next();
+            }
+        }
+    }
 }
-exports.default = exports.Map;
-var _a;
+exports.forOf = forOf;
 
 
 /***/ }),
 /* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Generic decorator handler to take care of whether or not the decorator was called at the class level
+ * or the method level.
+ *
+ * @param handler
+ */
+function handleDecorator(handler) {
+    return function (target, propertyKey, descriptor) {
+        if (typeof target === 'function') {
+            handler(target.prototype, undefined);
+        }
+        else {
+            handler(target, propertyKey);
+        }
+    };
+}
+exports.handleDecorator = handleDecorator;
+exports.default = handleDecorator;
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var lang_1 = __webpack_require__(5);
+var Symbol_1 = __webpack_require__(2);
+var maquette_1 = __webpack_require__(16);
+/**
+ * The symbol identifier for a WNode type
+ */
+exports.WNODE = Symbol_1.default('Identifier for a WNode.');
+/**
+ * The symbol identifier for a HNode type
+ */
+exports.HNODE = Symbol_1.default('Identifier for a HNode.');
+/**
+ * Helper function that returns true if the `DNode` is a `WNode` using the `type` property
+ */
+function isWNode(child) {
+    return Boolean(child && (typeof child !== 'string') && child.type === exports.WNODE);
+}
+exports.isWNode = isWNode;
+/**
+ * Helper function that returns true if the `DNode` is a `HNode` using the `type` property
+ */
+function isHNode(child) {
+    return Boolean(child && (typeof child !== 'string') && child.type === exports.HNODE);
+}
+exports.isHNode = isHNode;
+function decorate(dNodes, modifier, predicate) {
+    var nodes = Array.isArray(dNodes) ? dNodes.slice() : [dNodes];
+    while (nodes.length) {
+        var node = nodes.pop();
+        if (node) {
+            if (!predicate || predicate(node)) {
+                modifier(node);
+            }
+            if ((isWNode(node) || isHNode(node)) && node.children) {
+                nodes = nodes.concat(node.children);
+            }
+        }
+    }
+    return dNodes;
+}
+exports.decorate = decorate;
+/**
+ * Wrapper function for calls to create a widget.
+ */
+function w(widgetConstructor, properties, children) {
+    if (children === void 0) { children = []; }
+    return {
+        children: children,
+        widgetConstructor: widgetConstructor,
+        properties: properties,
+        type: exports.WNODE
+    };
+}
+exports.w = w;
+function v(tag, propertiesOrChildren, children) {
+    if (propertiesOrChildren === void 0) { propertiesOrChildren = {}; }
+    if (children === void 0) { children = []; }
+    var properties = propertiesOrChildren;
+    if (Array.isArray(propertiesOrChildren)) {
+        children = propertiesOrChildren;
+        properties = {};
+    }
+    var classes = properties.classes;
+    if (typeof classes === 'function') {
+        classes = classes();
+        properties = lang_1.assign(properties, { classes: classes });
+    }
+    return {
+        tag: tag,
+        children: children,
+        properties: properties,
+        render: function () {
+            return maquette_1.h(this.tag, this.properties, this.vNodes);
+        },
+        type: exports.HNODE
+    };
+}
+exports.v = v;
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var global_1 = __webpack_require__(0);
+var queue_1 = __webpack_require__(34);
+var iterator_1 = __webpack_require__(6);
+__webpack_require__(2);
+var has_1 = __webpack_require__(1);
+exports.ShimPromise = global_1.default.Promise;
+exports.isThenable = function isThenable(value) {
+    return value && typeof value.then === 'function';
+};
+if (!has_1.default('es6-promise')) {
+    global_1.default.Promise = exports.ShimPromise = (_a = (function () {
+            /**
+             * Creates a new Promise.
+             *
+             * @constructor
+             *
+             * @param executor
+             * The executor function is called immediately when the Promise is instantiated. It is responsible for
+             * starting the asynchronous operation when it is invoked.
+             *
+             * The executor must call either the passed `resolve` function when the asynchronous operation has completed
+             * successfully, or the `reject` function when the operation fails.
+             */
+            function Promise(executor) {
+                var _this = this;
+                /**
+                 * The current state of this promise.
+                 */
+                this.state = 1 /* Pending */;
+                this[Symbol.toStringTag] = 'Promise';
+                /**
+                 * If true, the resolution of this promise is chained ("locked in") to another promise.
+                 */
+                var isChained = false;
+                /**
+                 * Whether or not this promise is in a resolved state.
+                 */
+                var isResolved = function () {
+                    return _this.state !== 1 /* Pending */ || isChained;
+                };
+                /**
+                 * Callbacks that should be invoked once the asynchronous operation has completed.
+                 */
+                var callbacks = [];
+                /**
+                 * Initially pushes callbacks onto a queue for execution once this promise settles. After the promise settles,
+                 * enqueues callbacks for execution on the next event loop turn.
+                 */
+                var whenFinished = function (callback) {
+                    if (callbacks) {
+                        callbacks.push(callback);
+                    }
+                };
+                /**
+                 * Settles this promise.
+                 *
+                 * @param newState The resolved state for this promise.
+                 * @param {T|any} value The resolved value for this promise.
+                 */
+                var settle = function (newState, value) {
+                    // A promise can only be settled once.
+                    if (_this.state !== 1 /* Pending */) {
+                        return;
+                    }
+                    _this.state = newState;
+                    _this.resolvedValue = value;
+                    whenFinished = queue_1.queueMicroTask;
+                    // Only enqueue a callback runner if there are callbacks so that initially fulfilled Promises don't have to
+                    // wait an extra turn.
+                    if (callbacks && callbacks.length > 0) {
+                        queue_1.queueMicroTask(function () {
+                            if (callbacks) {
+                                var count = callbacks.length;
+                                for (var i = 0; i < count; ++i) {
+                                    callbacks[i].call(null);
+                                }
+                                callbacks = null;
+                            }
+                        });
+                    }
+                };
+                /**
+                 * Resolves this promise.
+                 *
+                 * @param newState The resolved state for this promise.
+                 * @param {T|any} value The resolved value for this promise.
+                 */
+                var resolve = function (newState, value) {
+                    if (isResolved()) {
+                        return;
+                    }
+                    if (exports.isThenable(value)) {
+                        value.then(settle.bind(null, 0 /* Fulfilled */), settle.bind(null, 2 /* Rejected */));
+                        isChained = true;
+                    }
+                    else {
+                        settle(newState, value);
+                    }
+                };
+                this.then = function (onFulfilled, onRejected) {
+                    return new Promise(function (resolve, reject) {
+                        // whenFinished initially queues up callbacks for execution after the promise has settled. Once the
+                        // promise has settled, whenFinished will schedule callbacks for execution on the next turn through the
+                        // event loop.
+                        whenFinished(function () {
+                            var callback = _this.state === 2 /* Rejected */ ? onRejected : onFulfilled;
+                            if (typeof callback === 'function') {
+                                try {
+                                    resolve(callback(_this.resolvedValue));
+                                }
+                                catch (error) {
+                                    reject(error);
+                                }
+                            }
+                            else if (_this.state === 2 /* Rejected */) {
+                                reject(_this.resolvedValue);
+                            }
+                            else {
+                                resolve(_this.resolvedValue);
+                            }
+                        });
+                    });
+                };
+                try {
+                    executor(resolve.bind(null, 0 /* Fulfilled */), resolve.bind(null, 2 /* Rejected */));
+                }
+                catch (error) {
+                    settle(2 /* Rejected */, error);
+                }
+            }
+            Promise.all = function (iterable) {
+                return new this(function (resolve, reject) {
+                    var values = [];
+                    var complete = 0;
+                    var total = 0;
+                    var populating = true;
+                    function fulfill(index, value) {
+                        values[index] = value;
+                        ++complete;
+                        finish();
+                    }
+                    function finish() {
+                        if (populating || complete < total) {
+                            return;
+                        }
+                        resolve(values);
+                    }
+                    function processItem(index, item) {
+                        ++total;
+                        if (exports.isThenable(item)) {
+                            // If an item Promise rejects, this Promise is immediately rejected with the item
+                            // Promise's rejection error.
+                            item.then(fulfill.bind(null, index), reject);
+                        }
+                        else {
+                            Promise.resolve(item).then(fulfill.bind(null, index));
+                        }
+                    }
+                    var i = 0;
+                    iterator_1.forOf(iterable, function (value) {
+                        processItem(i, value);
+                        i++;
+                    });
+                    populating = false;
+                    finish();
+                });
+            };
+            Promise.race = function (iterable) {
+                return new this(function (resolve, reject) {
+                    iterator_1.forOf(iterable, function (item) {
+                        if (item instanceof Promise) {
+                            // If a Promise item rejects, this Promise is immediately rejected with the item
+                            // Promise's rejection error.
+                            item.then(resolve, reject);
+                        }
+                        else {
+                            Promise.resolve(item).then(resolve);
+                        }
+                    });
+                });
+            };
+            Promise.reject = function (reason) {
+                return new this(function (resolve, reject) {
+                    reject(reason);
+                });
+            };
+            Promise.resolve = function (value) {
+                return new this(function (resolve) {
+                    resolve(value);
+                });
+            };
+            Promise.prototype.catch = function (onRejected) {
+                return this.then(undefined, onRejected);
+            };
+            return Promise;
+        }()),
+        _a[Symbol.species] = exports.ShimPromise,
+        _a);
+}
+exports.default = exports.ShimPromise;
+var _a;
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var Promise_1 = __webpack_require__(9);
+var Map_1 = __webpack_require__(4);
+var Symbol_1 = __webpack_require__(2);
+var Evented_1 = __webpack_require__(3);
+/**
+ * Widget base symbol type
+ */
+exports.WIDGET_BASE_TYPE = Symbol_1.default('Widget Base');
+/**
+ * Checks is the item is a subclass of WidgetBase (or a WidgetBase)
+ *
+ * @param item the item to check
+ * @returns true/false indicating if the item is a WidgetBaseConstructor
+ */
+function isWidgetBaseConstructor(item) {
+    return Boolean(item && item._type === exports.WIDGET_BASE_TYPE);
+}
+exports.isWidgetBaseConstructor = isWidgetBaseConstructor;
+/**
+ * The Registry implementation
+ */
+var Registry = (function (_super) {
+    __extends(Registry, _super);
+    function Registry() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    /**
+     * Emit loaded event for registry label
+     */
+    Registry.prototype.emitLoadedEvent = function (widgetLabel, item) {
+        this.emit({
+            type: widgetLabel,
+            action: 'loaded',
+            item: item
+        });
+    };
+    Registry.prototype.define = function (label, item) {
+        var _this = this;
+        if (this._widgetRegistry === undefined) {
+            this._widgetRegistry = new Map_1.default();
+        }
+        if (this._widgetRegistry.has(label)) {
+            throw new Error("widget has already been registered for '" + label.toString() + "'");
+        }
+        this._widgetRegistry.set(label, item);
+        if (item instanceof Promise_1.default) {
+            item.then(function (widgetCtor) {
+                _this._widgetRegistry.set(label, widgetCtor);
+                _this.emitLoadedEvent(label, widgetCtor);
+                return widgetCtor;
+            }, function (error) {
+                throw error;
+            });
+        }
+        else {
+            this.emitLoadedEvent(label, item);
+        }
+    };
+    Registry.prototype.defineInjector = function (label, item) {
+        if (this._injectorRegistry === undefined) {
+            this._injectorRegistry = new Map_1.default();
+        }
+        if (this._injectorRegistry.has(label)) {
+            throw new Error("injector has already been registered for '" + label.toString() + "'");
+        }
+        this._injectorRegistry.set(label, item);
+        this.emitLoadedEvent(label, item);
+    };
+    Registry.prototype.get = function (label) {
+        var _this = this;
+        if (!this.has(label)) {
+            return null;
+        }
+        var item = this._widgetRegistry.get(label);
+        if (isWidgetBaseConstructor(item)) {
+            return item;
+        }
+        if (item instanceof Promise_1.default) {
+            return null;
+        }
+        var promise = item();
+        this._widgetRegistry.set(label, promise);
+        promise.then(function (widgetCtor) {
+            _this._widgetRegistry.set(label, widgetCtor);
+            _this.emitLoadedEvent(label, widgetCtor);
+            return widgetCtor;
+        }, function (error) {
+            throw error;
+        });
+        return null;
+    };
+    Registry.prototype.getInjector = function (label) {
+        if (!this.hasInjector(label)) {
+            return null;
+        }
+        return this._injectorRegistry.get(label);
+    };
+    Registry.prototype.has = function (label) {
+        return Boolean(this._widgetRegistry && this._widgetRegistry.has(label));
+    };
+    Registry.prototype.hasInjector = function (label) {
+        return Boolean(this._injectorRegistry && this._injectorRegistry.has(label));
+    };
+    return Registry;
+}(Evented_1.Evented));
+exports.Registry = Registry;
+exports.default = Registry;
+
+
+/***/ }),
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __extends = (this && this.__extends) || (function () {
@@ -1130,15 +1619,15 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Evented_1 = __webpack_require__(2);
-var Map_1 = __webpack_require__(6);
-__webpack_require__(8); // Imported for side-effects
-var WeakMap_1 = __webpack_require__(10);
-var d_1 = __webpack_require__(1);
-var diff_1 = __webpack_require__(31);
-var RegistryHandler_1 = __webpack_require__(52);
-var NodeHandler_1 = __webpack_require__(51);
-var Registry_1 = __webpack_require__(13);
+var Evented_1 = __webpack_require__(3);
+var Map_1 = __webpack_require__(4);
+__webpack_require__(9); // Imported for side-effects
+var WeakMap_1 = __webpack_require__(12);
+var d_1 = __webpack_require__(8);
+var diff_1 = __webpack_require__(22);
+var RegistryHandler_1 = __webpack_require__(37);
+var NodeHandler_1 = __webpack_require__(36);
+var Registry_1 = __webpack_require__(10);
 var WidgetRenderState;
 (function (WidgetRenderState) {
     WidgetRenderState[WidgetRenderState["IDLE"] = 1] = "IDLE";
@@ -1666,353 +2155,16 @@ exports.default = WidgetBase;
 
 
 /***/ }),
-/* 8 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var global_1 = __webpack_require__(0);
-var queue_1 = __webpack_require__(49);
-var iterator_1 = __webpack_require__(9);
-__webpack_require__(3);
-var has_1 = __webpack_require__(4);
-exports.ShimPromise = global_1.default.Promise;
-exports.isThenable = function isThenable(value) {
-    return value && typeof value.then === 'function';
-};
-if (!has_1.default('es6-promise')) {
-    global_1.default.Promise = exports.ShimPromise = (_a = (function () {
-            /**
-             * Creates a new Promise.
-             *
-             * @constructor
-             *
-             * @param executor
-             * The executor function is called immediately when the Promise is instantiated. It is responsible for
-             * starting the asynchronous operation when it is invoked.
-             *
-             * The executor must call either the passed `resolve` function when the asynchronous operation has completed
-             * successfully, or the `reject` function when the operation fails.
-             */
-            function Promise(executor) {
-                var _this = this;
-                /**
-                 * The current state of this promise.
-                 */
-                this.state = 1 /* Pending */;
-                this[Symbol.toStringTag] = 'Promise';
-                /**
-                 * If true, the resolution of this promise is chained ("locked in") to another promise.
-                 */
-                var isChained = false;
-                /**
-                 * Whether or not this promise is in a resolved state.
-                 */
-                var isResolved = function () {
-                    return _this.state !== 1 /* Pending */ || isChained;
-                };
-                /**
-                 * Callbacks that should be invoked once the asynchronous operation has completed.
-                 */
-                var callbacks = [];
-                /**
-                 * Initially pushes callbacks onto a queue for execution once this promise settles. After the promise settles,
-                 * enqueues callbacks for execution on the next event loop turn.
-                 */
-                var whenFinished = function (callback) {
-                    if (callbacks) {
-                        callbacks.push(callback);
-                    }
-                };
-                /**
-                 * Settles this promise.
-                 *
-                 * @param newState The resolved state for this promise.
-                 * @param {T|any} value The resolved value for this promise.
-                 */
-                var settle = function (newState, value) {
-                    // A promise can only be settled once.
-                    if (_this.state !== 1 /* Pending */) {
-                        return;
-                    }
-                    _this.state = newState;
-                    _this.resolvedValue = value;
-                    whenFinished = queue_1.queueMicroTask;
-                    // Only enqueue a callback runner if there are callbacks so that initially fulfilled Promises don't have to
-                    // wait an extra turn.
-                    if (callbacks && callbacks.length > 0) {
-                        queue_1.queueMicroTask(function () {
-                            if (callbacks) {
-                                var count = callbacks.length;
-                                for (var i = 0; i < count; ++i) {
-                                    callbacks[i].call(null);
-                                }
-                                callbacks = null;
-                            }
-                        });
-                    }
-                };
-                /**
-                 * Resolves this promise.
-                 *
-                 * @param newState The resolved state for this promise.
-                 * @param {T|any} value The resolved value for this promise.
-                 */
-                var resolve = function (newState, value) {
-                    if (isResolved()) {
-                        return;
-                    }
-                    if (exports.isThenable(value)) {
-                        value.then(settle.bind(null, 0 /* Fulfilled */), settle.bind(null, 2 /* Rejected */));
-                        isChained = true;
-                    }
-                    else {
-                        settle(newState, value);
-                    }
-                };
-                this.then = function (onFulfilled, onRejected) {
-                    return new Promise(function (resolve, reject) {
-                        // whenFinished initially queues up callbacks for execution after the promise has settled. Once the
-                        // promise has settled, whenFinished will schedule callbacks for execution on the next turn through the
-                        // event loop.
-                        whenFinished(function () {
-                            var callback = _this.state === 2 /* Rejected */ ? onRejected : onFulfilled;
-                            if (typeof callback === 'function') {
-                                try {
-                                    resolve(callback(_this.resolvedValue));
-                                }
-                                catch (error) {
-                                    reject(error);
-                                }
-                            }
-                            else if (_this.state === 2 /* Rejected */) {
-                                reject(_this.resolvedValue);
-                            }
-                            else {
-                                resolve(_this.resolvedValue);
-                            }
-                        });
-                    });
-                };
-                try {
-                    executor(resolve.bind(null, 0 /* Fulfilled */), resolve.bind(null, 2 /* Rejected */));
-                }
-                catch (error) {
-                    settle(2 /* Rejected */, error);
-                }
-            }
-            Promise.all = function (iterable) {
-                return new this(function (resolve, reject) {
-                    var values = [];
-                    var complete = 0;
-                    var total = 0;
-                    var populating = true;
-                    function fulfill(index, value) {
-                        values[index] = value;
-                        ++complete;
-                        finish();
-                    }
-                    function finish() {
-                        if (populating || complete < total) {
-                            return;
-                        }
-                        resolve(values);
-                    }
-                    function processItem(index, item) {
-                        ++total;
-                        if (exports.isThenable(item)) {
-                            // If an item Promise rejects, this Promise is immediately rejected with the item
-                            // Promise's rejection error.
-                            item.then(fulfill.bind(null, index), reject);
-                        }
-                        else {
-                            Promise.resolve(item).then(fulfill.bind(null, index));
-                        }
-                    }
-                    var i = 0;
-                    iterator_1.forOf(iterable, function (value) {
-                        processItem(i, value);
-                        i++;
-                    });
-                    populating = false;
-                    finish();
-                });
-            };
-            Promise.race = function (iterable) {
-                return new this(function (resolve, reject) {
-                    iterator_1.forOf(iterable, function (item) {
-                        if (item instanceof Promise) {
-                            // If a Promise item rejects, this Promise is immediately rejected with the item
-                            // Promise's rejection error.
-                            item.then(resolve, reject);
-                        }
-                        else {
-                            Promise.resolve(item).then(resolve);
-                        }
-                    });
-                });
-            };
-            Promise.reject = function (reason) {
-                return new this(function (resolve, reject) {
-                    reject(reason);
-                });
-            };
-            Promise.resolve = function (value) {
-                return new this(function (resolve) {
-                    resolve(value);
-                });
-            };
-            Promise.prototype.catch = function (onRejected) {
-                return this.then(undefined, onRejected);
-            };
-            return Promise;
-        }()),
-        _a[Symbol.species] = exports.ShimPromise,
-        _a);
-}
-exports.default = exports.ShimPromise;
-var _a;
-
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var string_1 = __webpack_require__(48);
-__webpack_require__(3);
-var staticDone = { done: true, value: undefined };
-/**
- * A class that _shims_ an iterator interface on array like objects.
- */
-var ShimIterator = (function () {
-    function ShimIterator(list) {
-        this._nextIndex = -1;
-        if (isIterable(list)) {
-            this._nativeIterator = list[Symbol.iterator]();
-        }
-        else {
-            this._list = list;
-        }
-    }
-    ;
-    /**
-     * Return the next iteration result for the Iterator
-     */
-    ShimIterator.prototype.next = function () {
-        if (this._nativeIterator) {
-            return this._nativeIterator.next();
-        }
-        if (!this._list) {
-            return staticDone;
-        }
-        if (++this._nextIndex < this._list.length) {
-            return {
-                done: false,
-                value: this._list[this._nextIndex]
-            };
-        }
-        return staticDone;
-    };
-    ;
-    ShimIterator.prototype[Symbol.iterator] = function () {
-        return this;
-    };
-    return ShimIterator;
-}());
-exports.ShimIterator = ShimIterator;
-/**
- * A type guard for checking if something has an Iterable interface
- *
- * @param value The value to type guard against
- */
-function isIterable(value) {
-    return value && typeof value[Symbol.iterator] === 'function';
-}
-exports.isIterable = isIterable;
-/**
- * A type guard for checking if something is ArrayLike
- *
- * @param value The value to type guard against
- */
-function isArrayLike(value) {
-    return value && typeof value.length === 'number';
-}
-exports.isArrayLike = isArrayLike;
-/**
- * Returns the iterator for an object
- *
- * @param iterable The iterable object to return the iterator for
- */
-function get(iterable) {
-    if (isIterable(iterable)) {
-        return iterable[Symbol.iterator]();
-    }
-    else if (isArrayLike(iterable)) {
-        return new ShimIterator(iterable);
-    }
-}
-exports.get = get;
-/**
- * Shims the functionality of `for ... of` blocks
- *
- * @param iterable The object the provides an interator interface
- * @param callback The callback which will be called for each item of the iterable
- * @param thisArg Optional scope to pass the callback
- */
-function forOf(iterable, callback, thisArg) {
-    var broken = false;
-    function doBreak() {
-        broken = true;
-    }
-    /* We need to handle iteration of double byte strings properly */
-    if (isArrayLike(iterable) && typeof iterable === 'string') {
-        var l = iterable.length;
-        for (var i = 0; i < l; ++i) {
-            var char = iterable[i];
-            if ((i + 1) < l) {
-                var code = char.charCodeAt(0);
-                if ((code >= string_1.HIGH_SURROGATE_MIN) && (code <= string_1.HIGH_SURROGATE_MAX)) {
-                    char += iterable[++i];
-                }
-            }
-            callback.call(thisArg, char, iterable, doBreak);
-            if (broken) {
-                return;
-            }
-        }
-    }
-    else {
-        var iterator = get(iterable);
-        if (iterator) {
-            var result = iterator.next();
-            while (!result.done) {
-                callback.call(thisArg, result.value, iterable, doBreak);
-                if (broken) {
-                    return;
-                }
-                result = iterator.next();
-            }
-        }
-    }
-}
-exports.forOf = forOf;
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var global_1 = __webpack_require__(0);
-var iterator_1 = __webpack_require__(9);
-var has_1 = __webpack_require__(4);
-__webpack_require__(3);
+var iterator_1 = __webpack_require__(6);
+var has_1 = __webpack_require__(1);
+__webpack_require__(2);
 exports.WeakMap = global_1.default.WeakMap;
 if (!has_1.default('es6-weakmap')) {
     var DELETED_1 = {};
@@ -2119,42 +2271,15 @@ exports.default = exports.WeakMap;
 
 
 /***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * Generic decorator handler to take care of whether or not the decorator was called at the class level
- * or the method level.
- *
- * @param handler
- */
-function handleDecorator(handler) {
-    return function (target, propertyKey, descriptor) {
-        if (typeof target === 'function') {
-            handler(target.prototype, undefined);
-        }
-        else {
-            handler(target, propertyKey);
-        }
-    };
-}
-exports.handleDecorator = handleDecorator;
-exports.default = handleDecorator;
-
-
-/***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var global_1 = __webpack_require__(0);
-var has_1 = __webpack_require__(4);
-var Symbol_1 = __webpack_require__(3);
+var has_1 = __webpack_require__(1);
+var Symbol_1 = __webpack_require__(2);
 if (has_1.default('es6-object')) {
     var globalObject = global_1.default.Object;
     exports.assign = globalObject.assign;
@@ -2231,605 +2356,7 @@ else {
 
 
 /***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var Promise_1 = __webpack_require__(8);
-var Map_1 = __webpack_require__(6);
-var Symbol_1 = __webpack_require__(3);
-var Evented_1 = __webpack_require__(2);
-/**
- * Widget base symbol type
- */
-exports.WIDGET_BASE_TYPE = Symbol_1.default('Widget Base');
-/**
- * Checks is the item is a subclass of WidgetBase (or a WidgetBase)
- *
- * @param item the item to check
- * @returns true/false indicating if the item is a WidgetBaseConstructor
- */
-function isWidgetBaseConstructor(item) {
-    return Boolean(item && item._type === exports.WIDGET_BASE_TYPE);
-}
-exports.isWidgetBaseConstructor = isWidgetBaseConstructor;
-/**
- * The Registry implementation
- */
-var Registry = (function (_super) {
-    __extends(Registry, _super);
-    function Registry() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    /**
-     * Emit loaded event for registry label
-     */
-    Registry.prototype.emitLoadedEvent = function (widgetLabel, item) {
-        this.emit({
-            type: widgetLabel,
-            action: 'loaded',
-            item: item
-        });
-    };
-    Registry.prototype.define = function (label, item) {
-        var _this = this;
-        if (this._widgetRegistry === undefined) {
-            this._widgetRegistry = new Map_1.default();
-        }
-        if (this._widgetRegistry.has(label)) {
-            throw new Error("widget has already been registered for '" + label.toString() + "'");
-        }
-        this._widgetRegistry.set(label, item);
-        if (item instanceof Promise_1.default) {
-            item.then(function (widgetCtor) {
-                _this._widgetRegistry.set(label, widgetCtor);
-                _this.emitLoadedEvent(label, widgetCtor);
-                return widgetCtor;
-            }, function (error) {
-                throw error;
-            });
-        }
-        else {
-            this.emitLoadedEvent(label, item);
-        }
-    };
-    Registry.prototype.defineInjector = function (label, item) {
-        if (this._injectorRegistry === undefined) {
-            this._injectorRegistry = new Map_1.default();
-        }
-        if (this._injectorRegistry.has(label)) {
-            throw new Error("injector has already been registered for '" + label.toString() + "'");
-        }
-        this._injectorRegistry.set(label, item);
-        this.emitLoadedEvent(label, item);
-    };
-    Registry.prototype.get = function (label) {
-        var _this = this;
-        if (!this.has(label)) {
-            return null;
-        }
-        var item = this._widgetRegistry.get(label);
-        if (isWidgetBaseConstructor(item)) {
-            return item;
-        }
-        if (item instanceof Promise_1.default) {
-            return null;
-        }
-        var promise = item();
-        this._widgetRegistry.set(label, promise);
-        promise.then(function (widgetCtor) {
-            _this._widgetRegistry.set(label, widgetCtor);
-            _this.emitLoadedEvent(label, widgetCtor);
-            return widgetCtor;
-        }, function (error) {
-            throw error;
-        });
-        return null;
-    };
-    Registry.prototype.getInjector = function (label) {
-        if (!this.hasInjector(label)) {
-            return null;
-        }
-        return this._injectorRegistry.get(label);
-    };
-    Registry.prototype.has = function (label) {
-        return Boolean(this._widgetRegistry && this._widgetRegistry.has(label));
-    };
-    Registry.prototype.hasInjector = function (label) {
-        return Boolean(this._injectorRegistry && this._injectorRegistry.has(label));
-    };
-    return Registry;
-}(Evented_1.Evented));
-exports.Registry = Registry;
-exports.default = Registry;
-
-
-/***/ }),
 /* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var WeakMap_1 = __webpack_require__(10);
-var handleDecorator_1 = __webpack_require__(11);
-var beforeProperties_1 = __webpack_require__(55);
-/**
- * Map of instances against registered injectors.
- */
-var registeredInjectorsMap = new WeakMap_1.default();
-/**
- * Decorator retrieves an injector from an available registry using the name and
- * calls the `getProperties` function with the payload from the injector
- * and current properties with the the injected properties returned.
- *
- * @param InjectConfig the inject configuration
- */
-function inject(_a) {
-    var name = _a.name, getProperties = _a.getProperties;
-    return handleDecorator_1.handleDecorator(function (target, propertyKey) {
-        beforeProperties_1.beforeProperties(function (properties) {
-            var _this = this;
-            var injector = this.registry.getInjector(name);
-            if (injector) {
-                var registeredInjectors = registeredInjectorsMap.get(this) || [];
-                if (registeredInjectors.length === 0) {
-                    registeredInjectorsMap.set(this, registeredInjectors);
-                }
-                if (registeredInjectors.indexOf(injector) === -1) {
-                    injector.on('invalidate', function () {
-                        _this.emit({ type: 'invalidated', target: _this });
-                    });
-                    registeredInjectors.push(injector);
-                }
-                return getProperties(injector.get(), properties);
-            }
-        })(target);
-    });
-}
-exports.inject = inject;
-exports.default = inject;
-
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var lang_1 = __webpack_require__(5);
-/**
- * Parses a query string, returning a ParamList object.
- */
-function parseQueryString(input) {
-    var query = {};
-    for (var _i = 0, _a = input.split('&'); _i < _a.length; _i++) {
-        var entry = _a[_i];
-        var indexOfFirstEquals = entry.indexOf('=');
-        var key = void 0;
-        var value = '';
-        if (indexOfFirstEquals >= 0) {
-            key = entry.slice(0, indexOfFirstEquals);
-            value = entry.slice(indexOfFirstEquals + 1);
-        }
-        else {
-            key = entry;
-        }
-        key = key ? decodeURIComponent(key) : '';
-        value = value ? decodeURIComponent(value) : '';
-        if (key in query) {
-            query[key].push(value);
-        }
-        else {
-            query[key] = [value];
-        }
-    }
-    return query;
-}
-/**
- * Represents a set of URL query search parameters.
- */
-var UrlSearchParams = (function () {
-    /**
-     * Constructs a new UrlSearchParams from a query string, an object of parameters and values, or another
-     * UrlSearchParams.
-     */
-    function UrlSearchParams(input) {
-        var list;
-        if (input instanceof UrlSearchParams) {
-            // Copy the incoming UrlSearchParam's internal list
-            list = lang_1.duplicate(input._list);
-        }
-        else if (typeof input === 'object') {
-            // Copy the incoming object, assuming its property values are either arrays or strings
-            list = {};
-            for (var key in input) {
-                var value = input[key];
-                if (Array.isArray(value)) {
-                    list[key] = value.length ? value.slice() : [''];
-                }
-                else if (value == null) {
-                    list[key] = [''];
-                }
-                else {
-                    list[key] = [value];
-                }
-            }
-        }
-        else if (typeof input === 'string') {
-            // Parse the incoming string as a query string
-            list = parseQueryString(input);
-        }
-        else {
-            list = {};
-        }
-        Object.defineProperty(this, '_list', { value: list });
-    }
-    /**
-     * Appends a new value to the set of values for a key.
-     * @param key The key to add a value for
-     * @param value The value to add
-     */
-    UrlSearchParams.prototype.append = function (key, value) {
-        if (!this.has(key)) {
-            this.set(key, value);
-        }
-        else {
-            var values = this._list[key];
-            if (values) {
-                values.push(value);
-            }
-        }
-    };
-    /**
-     * Deletes all values for a key.
-     * @param key The key whose values are to be removed
-     */
-    UrlSearchParams.prototype.delete = function (key) {
-        // Set to undefined rather than deleting the key, for better consistency across browsers.
-        // If a deleted key is re-added, most browsers put it at the end of iteration order, but IE maintains
-        // its original position.  This approach maintains the original position everywhere.
-        this._list[key] = undefined;
-    };
-    /**
-     * Returns the first value associated with a key.
-     * @param key The key to return the first value for
-     * @return The first string value for the key
-     */
-    UrlSearchParams.prototype.get = function (key) {
-        if (!this.has(key)) {
-            return undefined;
-        }
-        var value = this._list[key];
-        return value ? value[0] : undefined;
-    };
-    /**
-     * Returns all the values associated with a key.
-     * @param key The key to return all values for
-     * @return An array of strings containing all values for the key
-     */
-    UrlSearchParams.prototype.getAll = function (key) {
-        if (!this.has(key)) {
-            return undefined;
-        }
-        return this._list[key];
-    };
-    /**
-     * Returns true if a key has been set to any value, false otherwise.
-     * @param key The key to test for existence
-     * @return A boolean indicating if the key has been set
-     */
-    UrlSearchParams.prototype.has = function (key) {
-        return Array.isArray(this._list[key]);
-    };
-    /**
-     * Returns an array of all keys which have been set.
-     * @return An array of strings containing all keys set in the UrlSearchParams instance
-     */
-    UrlSearchParams.prototype.keys = function () {
-        var keys = [];
-        for (var key in this._list) {
-            if (this.has(key)) {
-                keys.push(key);
-            }
-        }
-        return keys;
-    };
-    /**
-     * Sets the value associated with a key.
-     * @param key The key to set the value of
-     */
-    UrlSearchParams.prototype.set = function (key, value) {
-        this._list[key] = [value];
-    };
-    /**
-     * Returns this object's data as an encoded query string.
-     * @return A string in application/x-www-form-urlencoded format containing all of the set keys/values
-     */
-    UrlSearchParams.prototype.toString = function () {
-        var query = [];
-        for (var key in this._list) {
-            if (!this.has(key)) {
-                continue;
-            }
-            var values = this._list[key];
-            if (values) {
-                var encodedKey = encodeURIComponent(key);
-                for (var _i = 0, values_1 = values; _i < values_1.length; _i++) {
-                    var value = values_1[_i];
-                    query.push(encodedKey + (value ? ('=' + encodeURIComponent(value)) : ''));
-                }
-            }
-        }
-        return query.join('&');
-    };
-    return UrlSearchParams;
-}());
-exports.default = UrlSearchParams;
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Injector_1 = __webpack_require__(20);
-var HashHistory_1 = __webpack_require__(45);
-var Router_1 = __webpack_require__(44);
-/**
- * Key for the router injector
- */
-exports.routerKey = Symbol();
-/**
- * Creates a router instance for a specific History manager (default is `HashHistory`) and registers
- * the route configuration.
- *
- * @param config The route config to register for the router
- * @param registry An optional registry that defaults to the global registry
- * @param options The router injector options
- */
-function registerRouterInjector(config, registry, options) {
-    if (options === void 0) { options = {}; }
-    var _a = options.key, key = _a === void 0 ? exports.routerKey : _a, _b = options.history, history = _b === void 0 ? new HashHistory_1.default() : _b;
-    if (registry.hasInjector(key)) {
-        throw new Error('Router has already been defined');
-    }
-    var router = new Router_1.Router({ history: history, config: config });
-    var injector = new Injector_1.Injector(router);
-    router.on('navstart', function () {
-        injector.emit({ type: 'invalidate' });
-    });
-    registry.defineInjector(key, injector);
-    return router;
-}
-exports.registerRouterInjector = registerRouterInjector;
-
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * The type of match for a route
- */
-var MatchType;
-(function (MatchType) {
-    MatchType[MatchType["INDEX"] = 0] = "INDEX";
-    MatchType[MatchType["PARTIAL"] = 1] = "PARTIAL";
-    MatchType[MatchType["ERROR"] = 2] = "ERROR";
-})(MatchType = exports.MatchType || (exports.MatchType = {}));
-
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var global_1 = __webpack_require__(0);
-var iterator_1 = __webpack_require__(9);
-var number_1 = __webpack_require__(47);
-var has_1 = __webpack_require__(4);
-var util_1 = __webpack_require__(19);
-if (has_1.default('es6-array') && has_1.default('es6-array-fill')) {
-    exports.from = global_1.default.Array.from;
-    exports.of = global_1.default.Array.of;
-    exports.copyWithin = util_1.wrapNative(global_1.default.Array.prototype.copyWithin);
-    exports.fill = util_1.wrapNative(global_1.default.Array.prototype.fill);
-    exports.find = util_1.wrapNative(global_1.default.Array.prototype.find);
-    exports.findIndex = util_1.wrapNative(global_1.default.Array.prototype.findIndex);
-}
-else {
-    // It is only older versions of Safari/iOS that have a bad fill implementation and so aren't in the wild
-    // To make things easier, if there is a bad fill implementation, the whole set of functions will be filled
-    /**
-     * Ensures a non-negative, non-infinite, safe integer.
-     *
-     * @param length The number to validate
-     * @return A proper length
-     */
-    var toLength_1 = function toLength(length) {
-        length = Number(length);
-        if (isNaN(length)) {
-            return 0;
-        }
-        if (isFinite(length)) {
-            length = Math.floor(length);
-        }
-        // Ensure a non-negative, real, safe integer
-        return Math.min(Math.max(length, 0), number_1.MAX_SAFE_INTEGER);
-    };
-    /**
-     * From ES6 7.1.4 ToInteger()
-     *
-     * @param value A value to convert
-     * @return An integer
-     */
-    var toInteger_1 = function toInteger(value) {
-        value = Number(value);
-        if (isNaN(value)) {
-            return 0;
-        }
-        if (value === 0 || !isFinite(value)) {
-            return value;
-        }
-        return (value > 0 ? 1 : -1) * Math.floor(Math.abs(value));
-    };
-    /**
-     * Normalizes an offset against a given length, wrapping it if negative.
-     *
-     * @param value The original offset
-     * @param length The total length to normalize against
-     * @return If negative, provide a distance from the end (length); otherwise provide a distance from 0
-     */
-    var normalizeOffset_1 = function normalizeOffset(value, length) {
-        return value < 0 ? Math.max(length + value, 0) : Math.min(value, length);
-    };
-    exports.from = function from(arrayLike, mapFunction, thisArg) {
-        if (arrayLike == null) {
-            throw new TypeError('from: requires an array-like object');
-        }
-        if (mapFunction && thisArg) {
-            mapFunction = mapFunction.bind(thisArg);
-        }
-        /* tslint:disable-next-line:variable-name */
-        var Constructor = this;
-        var length = toLength_1(arrayLike.length);
-        // Support extension
-        var array = (typeof Constructor === 'function') ? Object(new Constructor(length)) : new Array(length);
-        if (!iterator_1.isArrayLike(arrayLike) && !iterator_1.isIterable(arrayLike)) {
-            return array;
-        }
-        var i = 0;
-        iterator_1.forOf(arrayLike, function (value) {
-            array[i] = mapFunction ? mapFunction(value, i) : value;
-            i++;
-        });
-        if (arrayLike.length !== undefined) {
-            array.length = length;
-        }
-        return array;
-    };
-    exports.of = function of() {
-        var items = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            items[_i] = arguments[_i];
-        }
-        return Array.prototype.slice.call(items);
-    };
-    exports.copyWithin = function copyWithin(target, offset, start, end) {
-        if (target == null) {
-            throw new TypeError('copyWithin: target must be an array-like object');
-        }
-        var length = toLength_1(target.length);
-        offset = normalizeOffset_1(toInteger_1(offset), length);
-        start = normalizeOffset_1(toInteger_1(start), length);
-        end = normalizeOffset_1(end === undefined ? length : toInteger_1(end), length);
-        var count = Math.min(end - start, length - offset);
-        var direction = 1;
-        if (offset > start && offset < (start + count)) {
-            direction = -1;
-            start += count - 1;
-            offset += count - 1;
-        }
-        while (count > 0) {
-            if (start in target) {
-                target[offset] = target[start];
-            }
-            else {
-                delete target[offset];
-            }
-            offset += direction;
-            start += direction;
-            count--;
-        }
-        return target;
-    };
-    exports.fill = function fill(target, value, start, end) {
-        var length = toLength_1(target.length);
-        var i = normalizeOffset_1(toInteger_1(start), length);
-        end = normalizeOffset_1(end === undefined ? length : toInteger_1(end), length);
-        while (i < end) {
-            target[i++] = value;
-        }
-        return target;
-    };
-    exports.find = function find(target, callback, thisArg) {
-        var index = exports.findIndex(target, callback, thisArg);
-        return index !== -1 ? target[index] : undefined;
-    };
-    exports.findIndex = function findIndex(target, callback, thisArg) {
-        var length = toLength_1(target.length);
-        if (!callback) {
-            throw new TypeError('find: second argument must be a function');
-        }
-        if (thisArg) {
-            callback = callback.bind(thisArg);
-        }
-        for (var i = 0; i < length; i++) {
-            if (callback(target[i], i, target)) {
-                return i;
-            }
-        }
-        return -1;
-    };
-}
-if (has_1.default('es7-array')) {
-    exports.includes = util_1.wrapNative(global_1.default.Array.prototype.includes);
-}
-else {
-    /**
-     * Ensures a non-negative, non-infinite, safe integer.
-     *
-     * @param length The number to validate
-     * @return A proper length
-     */
-    var toLength_2 = function toLength(length) {
-        length = Number(length);
-        if (isNaN(length)) {
-            return 0;
-        }
-        if (isFinite(length)) {
-            length = Math.floor(length);
-        }
-        // Ensure a non-negative, real, safe integer
-        return Math.min(Math.max(length, 0), number_1.MAX_SAFE_INTEGER);
-    };
-    exports.includes = function includes(target, searchElement, fromIndex) {
-        if (fromIndex === void 0) { fromIndex = 0; }
-        var len = toLength_2(target.length);
-        for (var i = fromIndex; i < len; ++i) {
-            var currentElement = target[i];
-            if (searchElement === currentElement ||
-                (searchElement !== searchElement && currentElement !== currentElement)) {
-                return true;
-            }
-        }
-        return false;
-    };
-}
-
-
-/***/ }),
-/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2875,44 +2402,7 @@ exports.wrapNative = wrapNative;
 
 
 /***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var Evented_1 = __webpack_require__(2);
-var Injector = (function (_super) {
-    __extends(Injector, _super);
-    function Injector(payload) {
-        var _this = _super.call(this, {}) || this;
-        _this._payload = payload;
-        return _this;
-    }
-    Injector.prototype.get = function () {
-        return this._payload;
-    };
-    Injector.prototype.set = function (payload) {
-        this._payload = payload;
-        this.emit({ type: 'invalidate' });
-    };
-    return Injector;
-}(Evented_1.Evented));
-exports.Injector = Injector;
-exports.default = Injector;
-
-
-/***/ }),
-/* 21 */
+/* 15 */
 /***/ (function(module, exports) {
 
 var g;
@@ -2939,329 +2429,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var lang_1 = __webpack_require__(5);
-var array_1 = __webpack_require__(18);
-var Map_1 = __webpack_require__(6);
-var Injector_1 = __webpack_require__(20);
-var inject_1 = __webpack_require__(14);
-var handleDecorator_1 = __webpack_require__(11);
-var diffProperty_1 = __webpack_require__(56);
-var diff_1 = __webpack_require__(31);
-var THEME_KEY = ' _key';
-exports.INJECTED_THEME_KEY = Symbol('theme');
-/**
- * Decorator for base css classes
- */
-function theme(theme) {
-    return handleDecorator_1.handleDecorator(function (target) {
-        target.addDecorator('baseThemeClasses', theme);
-    });
-}
-exports.theme = theme;
-/**
- * Split class strings containing spaces into separate array entries.
- * ie. ['class1 class2', 'class3] -> ['class1', 'class2', 'class3'];
- *
- * @param classes The array of class strings to split.
- * @return the complete classes array including any split classes.
- */
-function splitClassStrings(classes) {
-    return classes.reduce(function (splitClasses, className) {
-        if (className.indexOf(' ') > -1) {
-            splitClasses.push.apply(splitClasses, className.split(' '));
-        }
-        else {
-            splitClasses.push(className);
-        }
-        return splitClasses;
-    }, []);
-}
-/**
- * Returns the class object map based on the class names and whether they are
- * active.
- *
- * @param className an array of string class names
- * @param applied indicates is the class is applied
- */
-function createClassNameObject(classNames, applied) {
-    return classNames.reduce(function (flaggedClassNames, className) {
-        flaggedClassNames[className] = applied;
-        return flaggedClassNames;
-    }, {});
-}
-/**
- * Creates a reverse lookup for the classes passed in via the `theme` function.
- *
- * @param classes The baseClasses object
- * @requires
- */
-function createThemeClassesLookup(classes) {
-    return classes.reduce(function (currentClassNames, baseClass) {
-        Object.keys(baseClass).forEach(function (key) {
-            currentClassNames[baseClass[key]] = key;
-        });
-        return currentClassNames;
-    }, {});
-}
-/**
- * Convenience function that is given a theme and an optional registry, the theme
- * injector is defined against the registry, returning the theme.
- *
- * @param theme the theme to set
- * @param themeRegistry registry to define the theme injector against. Defaults
- * to the global registry
- *
- * @returns the theme injector used to set the theme
- */
-function registerThemeInjector(theme, themeRegistry) {
-    var themeInjector = new Injector_1.Injector(theme);
-    themeRegistry.defineInjector(exports.INJECTED_THEME_KEY, themeInjector);
-    return themeInjector;
-}
-exports.registerThemeInjector = registerThemeInjector;
-/**
- * Function that returns a class decorated with with Themeable functionality
- */
-function ThemeableMixin(Base) {
-    var Themeable = (function (_super) {
-        __extends(Themeable, _super);
-        function Themeable() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
-            /**
-             * All classes ever seen by the instance
-             */
-            _this._allClasses = {};
-            /**
-             * Indicates if classes meta data need to be calculated.
-             */
-            _this._recalculateClasses = true;
-            /**
-             * Map of registered classes
-             */
-            _this._registeredClassesMap = new Map_1.default();
-            /**
-             * Loaded theme
-             */
-            _this._theme = {};
-            return _this;
-        }
-        /**
-         * Function used to add themeable classes to a widget. Returns a chained function 'fixed'
-         * that can be used to pass non-themeable classes to a widget. Filters out any null
-         * values passed.
-         *
-         * @param classNames the classes to be added to the domNode. These classes must come from
-         * the baseClasses passed into the @theme decorator.
-         * @return A function chain containing the 'fixed' function and a 'get' finalizer function.
-         * Class names passed to the 'fixed' function can be any string.
-         *
-         */
-        Themeable.prototype.classes = function () {
-            var classNames = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                classNames[_i] = arguments[_i];
-            }
-            if (this._recalculateClasses) {
-                this._recalculateThemeClasses();
-            }
-            var themeable = this;
-            function classesGetter() {
-                var themeClasses = themeable._getThemeClasses(this.classes);
-                var fixedClasses = themeable._getFixedClasses(this.fixedClasses);
-                return lang_1.assign({}, themeable._allClasses, themeClasses, fixedClasses);
-            }
-            var classesFunctionChain = {
-                classes: classNames,
-                fixedClasses: [],
-                fixed: function () {
-                    var classNames = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        classNames[_i] = arguments[_i];
-                    }
-                    var filteredClassNames = classNames.filter(function (className) { return className !== null; });
-                    (_a = this.fixedClasses).push.apply(_a, filteredClassNames);
-                    return this;
-                    var _a;
-                },
-                get: classesGetter
-            };
-            return lang_1.assign(classesGetter.bind(classesFunctionChain), classesFunctionChain);
-        };
-        /**
-         * Function fired when `theme` or `extraClasses` are changed.
-         */
-        Themeable.prototype.onPropertiesChanged = function () {
-            this._recalculateClasses = true;
-        };
-        /**
-         * Get theme class object from classNames
-         */
-        Themeable.prototype._getThemeClasses = function (classNames) {
-            var _this = this;
-            return classNames
-                .filter(function (className) { return !!className; })
-                .reduce(function (appliedClasses, className) {
-                if (!_this._baseThemeClassesReverseLookup[className]) {
-                    console.warn("Class name: " + className + " not found, use chained 'fixed' method instead");
-                    return appliedClasses;
-                }
-                className = _this._baseThemeClassesReverseLookup[className];
-                if (!_this._registeredClassesMap.has(className)) {
-                    _this._registerThemeClass(className);
-                }
-                return lang_1.assign(appliedClasses, _this._registeredClassesMap.get(className));
-            }, {});
-        };
-        /**
-         * Get fixed class object from classNames
-         */
-        Themeable.prototype._getFixedClasses = function (classNames) {
-            var splitClasses = splitClassStrings(classNames);
-            this._appendToAllClassNames(splitClasses);
-            return createClassNameObject(splitClasses, true);
-        };
-        /**
-         * Adds classes to the internal allClasses property
-         *
-         * @param classNames an array of string class names
-         */
-        Themeable.prototype._appendToAllClassNames = function (classNames) {
-            var negativeClassFlags = createClassNameObject(classNames, false);
-            this._allClasses = lang_1.assign({}, this._allClasses, negativeClassFlags);
-        };
-        /**
-         * Register the classes object for the class name and adds the class to the instances `allClasses` object.
-         *
-         * @param className the name of the class to register.
-         */
-        Themeable.prototype._registerThemeClass = function (className) {
-            var _this = this;
-            var _a = this.properties.extraClasses, extraClasses = _a === void 0 ? {} : _a;
-            var themeClass = this._theme[className] ? this._theme[className] : this._getBaseThemeClass(className);
-            var extraClassesClassNames = extraClasses[className];
-            var extraClassesClassNamesArray = extraClassesClassNames ? extraClassesClassNames.split(' ') : [];
-            var cssClassNames = themeClass.split(' ').concat(extraClassesClassNamesArray);
-            var classesObject = cssClassNames.reduce(function (classesObject, cssClassName) {
-                classesObject[cssClassName] = true;
-                _this._allClasses[cssClassName] = false;
-                return classesObject;
-            }, {});
-            this._registeredClassesMap.set(className, classesObject);
-        };
-        /**
-         * Recalculate registered classes for current theme.
-         */
-        Themeable.prototype._recalculateThemeClasses = function () {
-            var _this = this;
-            var _a = this.properties, _b = _a.injectedTheme, injectedTheme = _b === void 0 ? {} : _b, _c = _a.theme, theme = _c === void 0 ? injectedTheme : _c;
-            if (!this._registeredBaseThemes) {
-                this._registeredBaseThemes = this.getDecorator('baseThemeClasses').slice().reverse();
-                this._checkForDuplicates();
-            }
-            var registeredBaseThemeKeys = this._registeredBaseThemes.map(function (registeredBaseThemeClasses) {
-                return registeredBaseThemeClasses[THEME_KEY];
-            });
-            this._baseThemeClassesReverseLookup = createThemeClassesLookup(this._registeredBaseThemes);
-            this._theme = registeredBaseThemeKeys.reduce(function (baseTheme, themeKey) {
-                return lang_1.assign(baseTheme, theme[themeKey]);
-            }, {});
-            this._registeredClassesMap.forEach(function (value, key) {
-                _this._registerThemeClass(key);
-            });
-            this._recalculateClasses = false;
-        };
-        /**
-         * Find the base theme class for the class name
-         */
-        Themeable.prototype._getBaseThemeClass = function (className) {
-            var registeredBaseTheme = array_1.find(this._registeredBaseThemes, function (registeredBaseThemeClasses) {
-                return Boolean(registeredBaseThemeClasses[className]);
-            });
-            return (registeredBaseTheme && registeredBaseTheme[className]) || '';
-        };
-        /**
-         * Check for duplicates across the registered base themes.
-         */
-        Themeable.prototype._checkForDuplicates = function () {
-            var _this = this;
-            this._registeredBaseThemes.forEach(function (registeredBaseThemeClasses, index) {
-                Object.keys(registeredBaseThemeClasses).some(function (key) {
-                    return _this._isDuplicate(key, registeredBaseThemeClasses);
-                });
-            });
-        };
-        /**
-         * Search for the class name in other base themes
-         */
-        Themeable.prototype._isDuplicate = function (key, originatingBaseTheme) {
-            var duplicate = false;
-            if (key !== THEME_KEY) {
-                for (var i = 0; i < this._registeredBaseThemes.length; i++) {
-                    if (originatingBaseTheme === this._registeredBaseThemes[i]) {
-                        continue;
-                    }
-                    if (this._registeredBaseThemes[i][key]) {
-                        console.warn("Duplicate base theme class key '" + key + "' detected, this could cause unexpected results");
-                        duplicate = true;
-                        break;
-                    }
-                }
-                return duplicate;
-            }
-            return duplicate;
-        };
-        __decorate([
-            diffProperty_1.diffProperty('theme', diff_1.shallow),
-            diffProperty_1.diffProperty('extraClasses', diff_1.shallow),
-            __metadata("design:type", Function),
-            __metadata("design:paramtypes", []),
-            __metadata("design:returntype", void 0)
-        ], Themeable.prototype, "onPropertiesChanged", null);
-        Themeable = __decorate([
-            inject_1.inject({
-                name: exports.INJECTED_THEME_KEY,
-                getProperties: function (theme, properties) {
-                    if (!properties.theme) {
-                        return { theme: theme };
-                    }
-                    return {};
-                }
-            })
-        ], Themeable);
-        return Themeable;
-    }(Base));
-    return Themeable;
-}
-exports.ThemeableMixin = ThemeableMixin;
-exports.default = ThemeableMixin;
-
-
-/***/ }),
-/* 23 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory) {
@@ -4072,7 +3240,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 
 /***/ }),
-/* 24 */
+/* 17 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -4262,104 +3430,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var lang_1 = __webpack_require__(5);
-function emit(target, event) {
-    if (target.dispatchEvent &&
-        ((target.ownerDocument && target.ownerDocument.createEvent) ||
-            (target.document && target.document.createEvent) ||
-            target.createEvent) /* matches document */) {
-        var nativeEvent = (target.ownerDocument || target.document || target).createEvent('HTMLEvents');
-        nativeEvent.initEvent(event.type, Boolean(event.bubbles), Boolean(event.cancelable));
-        for (var key in event) {
-            if (!(key in nativeEvent)) {
-                nativeEvent[key] = event[key];
-            }
-        }
-        return target.dispatchEvent(nativeEvent);
-    }
-    if (target.emit) {
-        if (target.removeListener) {
-            // Node.js EventEmitter
-            target.emit(event.type, event);
-            return false;
-        }
-        else if (target.on) {
-            // Dojo Evented or similar
-            target.emit(event);
-            return false;
-        }
-    }
-    throw new Error('Target must be an event emitter');
-}
-exports.emit = emit;
-function on(target, type, listener, capture) {
-    if (Array.isArray(type)) {
-        var handles = type.map(function (type) {
-            return on(target, type, listener, capture);
-        });
-        return lang_1.createCompositeHandle.apply(void 0, handles);
-    }
-    var callback = function () {
-        listener.apply(this, arguments);
-    };
-    // DOM EventTarget
-    if (target.addEventListener && target.removeEventListener) {
-        target.addEventListener(type, callback, capture);
-        return lang_1.createHandle(function () {
-            target.removeEventListener(type, callback, capture);
-        });
-    }
-    if (target.on) {
-        // EventEmitter
-        if (target.removeListener) {
-            target.on(type, callback);
-            return lang_1.createHandle(function () {
-                target.removeListener(type, callback);
-            });
-        }
-        else if (target.emit) {
-            return target.on(type, listener);
-        }
-    }
-    throw new TypeError('Unknown event emitter object');
-}
-exports.default = on;
-function once(target, type, listener, capture) {
-    // FIXME
-    // tslint:disable-next-line:no-var-keyword
-    var handle = on(target, type, function () {
-        handle.destroy();
-        return listener.apply(this, arguments);
-    }, capture);
-    return handle;
-}
-exports.once = once;
-function pausable(target, type, listener, capture) {
-    var paused;
-    var handle = on(target, type, function () {
-        if (!paused) {
-            return listener.apply(this, arguments);
-        }
-    }, capture);
-    handle.pause = function () {
-        paused = true;
-    };
-    handle.resume = function () {
-        paused = false;
-    };
-    return handle;
-}
-exports.pausable = pausable;
-
-
-/***/ }),
-/* 26 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4569,429 +3640,291 @@ add('host-node', function () {
     }
 });
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(21), __webpack_require__(24)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15), __webpack_require__(17)))
 
 /***/ }),
-/* 27 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
-            t[p[i]] = s[p[i]];
-    return t;
-};
 "use strict";
+
 Object.defineProperty(exports, "__esModule", { value: true });
-var WidgetBase_1 = __webpack_require__(7);
-var d_1 = __webpack_require__(1);
-var inject_1 = __webpack_require__(14);
-var RouterInjector_1 = __webpack_require__(16);
-var getProperties = function (router, properties) {
-    var to = properties.to, _a = properties.isOutlet, isOutlet = _a === void 0 ? true : _a, _b = properties.params, params = _b === void 0 ? {} : _b, onClick = properties.onClick, props = __rest(properties, ["to", "isOutlet", "params", "onClick"]);
-    var href = isOutlet ? router.link(to, __assign({}, router.getCurrentParams(), params)) : to;
-    var handleOnClick = function (event) {
-        if (onClick) {
-            onClick(event);
-        }
-        if (!event.defaultPrevented && event.button === 0 && !properties.target) {
-            event.preventDefault();
-            router.setPath(href);
-        }
-    };
-    return __assign({ href: href, onClick: handleOnClick }, props);
-};
-var BaseLink = (function (_super) {
-    __extends(BaseLink, _super);
-    function BaseLink() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    BaseLink.prototype._onClick = function (event) {
-        this.properties.onClick && this.properties.onClick(event);
-    };
-    BaseLink.prototype.render = function () {
-        var props = __assign({}, this.properties, { onclick: this._onClick, onClick: undefined, to: undefined, isOutlet: undefined, params: undefined, routerKey: undefined, router: undefined });
-        return d_1.v('a', __assign({}, props), this.children);
-    };
-    return BaseLink;
-}(WidgetBase_1.WidgetBase));
-exports.BaseLink = BaseLink;
-function createLink(routerKey) {
-    var Link = (function (_super) {
-        __extends(Link, _super);
-        function Link() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        Link = __decorate([
-            inject_1.inject({ name: routerKey, getProperties: getProperties })
-        ], Link);
-        return Link;
-    }(BaseLink));
-    ;
-    return Link;
+var global_1 = __webpack_require__(0);
+var iterator_1 = __webpack_require__(6);
+var number_1 = __webpack_require__(32);
+var has_1 = __webpack_require__(1);
+var util_1 = __webpack_require__(14);
+if (has_1.default('es6-array') && has_1.default('es6-array-fill')) {
+    exports.from = global_1.default.Array.from;
+    exports.of = global_1.default.Array.of;
+    exports.copyWithin = util_1.wrapNative(global_1.default.Array.prototype.copyWithin);
+    exports.fill = util_1.wrapNative(global_1.default.Array.prototype.fill);
+    exports.find = util_1.wrapNative(global_1.default.Array.prototype.find);
+    exports.findIndex = util_1.wrapNative(global_1.default.Array.prototype.findIndex);
 }
-exports.createLink = createLink;
-exports.Link = createLink(RouterInjector_1.routerKey);
-
-
-/***/ }),
-/* 28 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var WidgetBase_1 = __webpack_require__(7);
-var d_1 = __webpack_require__(1);
-var inject_1 = __webpack_require__(14);
-var RouterInjector_1 = __webpack_require__(16);
-var interfaces_1 = __webpack_require__(17);
-function isComponent(value) {
-    return Boolean(value && ((typeof value === 'string') || (typeof value === 'function') || (typeof value === 'symbol')));
-}
-exports.isComponent = isComponent;
-function Outlet(outletComponents, outlet, mapParams, key) {
-    if (mapParams === void 0) { mapParams = function (options) { }; }
-    if (key === void 0) { key = RouterInjector_1.routerKey; }
-    var indexComponent = isComponent(outletComponents) ? undefined : outletComponents.index;
-    var mainComponent = isComponent(outletComponents) ? outletComponents : outletComponents.main;
-    var errorComponent = isComponent(outletComponents) ? undefined : outletComponents.error;
-    function getProperties(router, properties) {
-        return { router: router };
-    }
-    ;
-    var OutletComponent = (function (_super) {
-        __extends(OutletComponent, _super);
-        function OutletComponent() {
-            return _super !== null && _super.apply(this, arguments) || this;
+else {
+    // It is only older versions of Safari/iOS that have a bad fill implementation and so aren't in the wild
+    // To make things easier, if there is a bad fill implementation, the whole set of functions will be filled
+    /**
+     * Ensures a non-negative, non-infinite, safe integer.
+     *
+     * @param length The number to validate
+     * @return A proper length
+     */
+    var toLength_1 = function toLength(length) {
+        length = Number(length);
+        if (isNaN(length)) {
+            return 0;
         }
-        OutletComponent.prototype.__setProperties__ = function (properties) {
-            _super.prototype.__setProperties__.call(this, properties);
-            this.invalidate();
-        };
-        OutletComponent.prototype.render = function () {
-            var router = this.properties.router;
-            var outletContext = router.getOutlet(outlet);
-            if (outletContext) {
-                var params = outletContext.params, type = outletContext.type, location_1 = outletContext.location;
-                var properties = __assign({}, this.properties, mapParams({ params: params, type: type, location: location_1, router: router }));
-                if ((type === interfaces_1.MatchType.INDEX || type === interfaces_1.MatchType.ERROR) && indexComponent) {
-                    return d_1.w(indexComponent, properties, this.children);
-                }
-                else if (type === interfaces_1.MatchType.ERROR && errorComponent) {
-                    return d_1.w(errorComponent, properties, this.children);
-                }
-                else if (type !== interfaces_1.MatchType.ERROR && mainComponent) {
-                    return d_1.w(mainComponent, properties, this.children);
-                }
+        if (isFinite(length)) {
+            length = Math.floor(length);
+        }
+        // Ensure a non-negative, real, safe integer
+        return Math.min(Math.max(length, 0), number_1.MAX_SAFE_INTEGER);
+    };
+    /**
+     * From ES6 7.1.4 ToInteger()
+     *
+     * @param value A value to convert
+     * @return An integer
+     */
+    var toInteger_1 = function toInteger(value) {
+        value = Number(value);
+        if (isNaN(value)) {
+            return 0;
+        }
+        if (value === 0 || !isFinite(value)) {
+            return value;
+        }
+        return (value > 0 ? 1 : -1) * Math.floor(Math.abs(value));
+    };
+    /**
+     * Normalizes an offset against a given length, wrapping it if negative.
+     *
+     * @param value The original offset
+     * @param length The total length to normalize against
+     * @return If negative, provide a distance from the end (length); otherwise provide a distance from 0
+     */
+    var normalizeOffset_1 = function normalizeOffset(value, length) {
+        return value < 0 ? Math.max(length + value, 0) : Math.min(value, length);
+    };
+    exports.from = function from(arrayLike, mapFunction, thisArg) {
+        if (arrayLike == null) {
+            throw new TypeError('from: requires an array-like object');
+        }
+        if (mapFunction && thisArg) {
+            mapFunction = mapFunction.bind(thisArg);
+        }
+        /* tslint:disable-next-line:variable-name */
+        var Constructor = this;
+        var length = toLength_1(arrayLike.length);
+        // Support extension
+        var array = (typeof Constructor === 'function') ? Object(new Constructor(length)) : new Array(length);
+        if (!iterator_1.isArrayLike(arrayLike) && !iterator_1.isIterable(arrayLike)) {
+            return array;
+        }
+        var i = 0;
+        iterator_1.forOf(arrayLike, function (value) {
+            array[i] = mapFunction ? mapFunction(value, i) : value;
+            i++;
+        });
+        if (arrayLike.length !== undefined) {
+            array.length = length;
+        }
+        return array;
+    };
+    exports.of = function of() {
+        var items = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            items[_i] = arguments[_i];
+        }
+        return Array.prototype.slice.call(items);
+    };
+    exports.copyWithin = function copyWithin(target, offset, start, end) {
+        if (target == null) {
+            throw new TypeError('copyWithin: target must be an array-like object');
+        }
+        var length = toLength_1(target.length);
+        offset = normalizeOffset_1(toInteger_1(offset), length);
+        start = normalizeOffset_1(toInteger_1(start), length);
+        end = normalizeOffset_1(end === undefined ? length : toInteger_1(end), length);
+        var count = Math.min(end - start, length - offset);
+        var direction = 1;
+        if (offset > start && offset < (start + count)) {
+            direction = -1;
+            start += count - 1;
+            offset += count - 1;
+        }
+        while (count > 0) {
+            if (start in target) {
+                target[offset] = target[start];
             }
-            return null;
-        };
-        OutletComponent = __decorate([
-            inject_1.inject({ name: RouterInjector_1.routerKey, getProperties: getProperties })
-        ], OutletComponent);
-        return OutletComponent;
-    }(WidgetBase_1.WidgetBase));
-    return OutletComponent;
+            else {
+                delete target[offset];
+            }
+            offset += direction;
+            start += direction;
+            count--;
+        }
+        return target;
+    };
+    exports.fill = function fill(target, value, start, end) {
+        var length = toLength_1(target.length);
+        var i = normalizeOffset_1(toInteger_1(start), length);
+        end = normalizeOffset_1(end === undefined ? length : toInteger_1(end), length);
+        while (i < end) {
+            target[i++] = value;
+        }
+        return target;
+    };
+    exports.find = function find(target, callback, thisArg) {
+        var index = exports.findIndex(target, callback, thisArg);
+        return index !== -1 ? target[index] : undefined;
+    };
+    exports.findIndex = function findIndex(target, callback, thisArg) {
+        var length = toLength_1(target.length);
+        if (!callback) {
+            throw new TypeError('find: second argument must be a function');
+        }
+        if (thisArg) {
+            callback = callback.bind(thisArg);
+        }
+        for (var i = 0; i < length; i++) {
+            if (callback(target[i], i, target)) {
+                return i;
+            }
+        }
+        return -1;
+    };
 }
-exports.Outlet = Outlet;
-exports.default = Outlet;
+if (has_1.default('es7-array')) {
+    exports.includes = util_1.wrapNative(global_1.default.Array.prototype.includes);
+}
+else {
+    /**
+     * Ensures a non-negative, non-infinite, safe integer.
+     *
+     * @param length The number to validate
+     * @return A proper length
+     */
+    var toLength_2 = function toLength(length) {
+        length = Number(length);
+        if (isNaN(length)) {
+            return 0;
+        }
+        if (isFinite(length)) {
+            length = Math.floor(length);
+        }
+        // Ensure a non-negative, real, safe integer
+        return Math.min(Math.max(length, 0), number_1.MAX_SAFE_INTEGER);
+    };
+    exports.includes = function includes(target, searchElement, fromIndex) {
+        if (fromIndex === void 0) { fromIndex = 0; }
+        var len = toLength_2(target.length);
+        for (var i = fromIndex; i < len; ++i) {
+            var currentElement = target[i];
+            if (searchElement === currentElement ||
+                (searchElement !== searchElement && currentElement !== currentElement)) {
+                return true;
+            }
+        }
+        return false;
+    };
+}
 
 
 /***/ }),
-/* 29 */
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var Evented_1 = __webpack_require__(3);
+var Injector = (function (_super) {
+    __extends(Injector, _super);
+    function Injector(payload) {
+        var _this = _super.call(this, {}) || this;
+        _this._payload = payload;
+        return _this;
+    }
+    Injector.prototype.get = function () {
+        return this._payload;
+    };
+    Injector.prototype.set = function (payload) {
+        this._payload = payload;
+        this.emit({ type: 'invalidate' });
+    };
+    return Injector;
+}(Evented_1.Evented));
+exports.Injector = Injector;
+exports.default = Injector;
+
+
+/***/ }),
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var UrlSearchParams_1 = __webpack_require__(15);
+var WeakMap_1 = __webpack_require__(12);
+var handleDecorator_1 = __webpack_require__(7);
+var beforeProperties_1 = __webpack_require__(40);
 /**
- * Parses a path
- * @param path The path to parse.
- * @return The search params, pathname segments, and whether it ended with a trailing slash.
+ * Map of instances against registered injectors.
  */
-function parse(path) {
-    var tokens = path.split(/([/?#])/).filter(Boolean);
-    var pathnameTokens = tokens;
-    var searchParams;
-    var searchStart = tokens.indexOf('?');
-    var hashStart = tokens.indexOf('#');
-    if (searchStart >= 0) {
-        if (hashStart >= 0) {
-            // Either `/foo?bar#baz` or `/foo#bar?baz`
-            pathnameTokens = tokens.slice(0, Math.min(searchStart, hashStart));
-            searchParams = new UrlSearchParams_1.default(tokens.slice(searchStart + 1, hashStart).join(''));
-        }
-        else {
-            // `/foo?bar`
-            pathnameTokens = tokens.slice(0, searchStart);
-            searchParams = new UrlSearchParams_1.default(tokens.slice(searchStart + 1).join(''));
-        }
-    }
-    else {
-        searchParams = new UrlSearchParams_1.default();
-        if (hashStart >= 0) {
-            // `/foo#bar`
-            pathnameTokens = tokens.slice(0, hashStart);
-        }
-    }
-    var segments = pathnameTokens.filter(function (t) { return t !== '/'; });
-    var trailingSlash = pathnameTokens[pathnameTokens.length - 1] === '/' && segments.length > 0;
-    return {
-        searchParams: searchParams,
-        segments: segments,
-        trailingSlash: trailingSlash
-    };
-}
-exports.parse = parse;
+var registeredInjectorsMap = new WeakMap_1.default();
 /**
- * Determines whether a DeconstructedPath is a (partial) match for given pathname segments.
- * @param expectedSegments Part of a DeconstructedPath object.
- * @param segments Pathname segments as returned by `parse()`
- * @return A result object.
- */
-function match(_a, segments) {
-    var expectedSegments = _a.expectedSegments;
-    if (expectedSegments.length === 0) {
-        return {
-            hasRemaining: segments.length > 0,
-            offset: 0,
-            values: []
-        };
-    }
-    if (expectedSegments.length > segments.length) {
-        return null;
-    }
-    var isMatch = true;
-    var values = [];
-    for (var i = 0; isMatch && i < expectedSegments.length; i++) {
-        var value = segments[i];
-        var expected = expectedSegments[i];
-        if (isNamedSegment(expected)) {
-            values.push(value);
-        }
-        else if (expected.literal !== value) {
-            isMatch = false;
-        }
-    }
-    if (!isMatch) {
-        return null;
-    }
-    return {
-        hasRemaining: expectedSegments.length < segments.length,
-        offset: expectedSegments.length,
-        values: values
-    };
-}
-exports.match = match;
-/**
- * Determine whether the segment is a NamedSegment.
+ * Decorator retrieves an injector from an available registry using the name and
+ * calls the `getProperties` function with the payload from the injector
+ * and current properties with the the injected properties returned.
  *
- * @param segment The segment to be checked
- * @return true if the segment is a NamedSegment, false otherwise
+ * @param InjectConfig the inject configuration
  */
-function isNamedSegment(segment) {
-    return segment.name !== undefined;
-}
-exports.isNamedSegment = isNamedSegment;
-/**
- * Deconstruct a route path into its constituent parts.
- * @param path The path to deconstruct.
- * @return An object describing the path's constituent parts.
- */
-function deconstruct(path) {
-    var expectedSegments = [];
-    var parameters = [];
-    var searchParameters = [];
-    var trailingSlash = false;
-    var tokens = path.split(/([/{}?&])/).filter(Boolean);
-    var leadingSlash = tokens[0] === '/';
-    var i = 0;
-    var consume = function () { return tokens[i++]; };
-    var peek = function () { return tokens[i]; };
-    var inSearchComponent = false;
-    while (i < tokens.length) {
-        var t = consume();
-        switch (t) {
-            case '{': {
-                var name_1 = consume();
-                if (!name_1 || name_1 === '}') {
-                    throw new TypeError('Parameter must have a name');
+function inject(_a) {
+    var name = _a.name, getProperties = _a.getProperties;
+    return handleDecorator_1.handleDecorator(function (target, propertyKey) {
+        beforeProperties_1.beforeProperties(function (properties) {
+            var _this = this;
+            var injector = this.registry.getInjector(name);
+            if (injector) {
+                var registeredInjectors = registeredInjectorsMap.get(this) || [];
+                if (registeredInjectors.length === 0) {
+                    registeredInjectorsMap.set(this, registeredInjectors);
                 }
-                // Reserve : for future use, e.g. including type data in the parameter declaration.
-                if (name_1 === '{' || name_1 === '&' || /:/.test(name_1)) {
-                    throw new TypeError('Parameter name must not contain \'{\', \'&\' or \':\'');
+                if (registeredInjectors.indexOf(injector) === -1) {
+                    injector.on('invalidate', function () {
+                        _this.emit({ type: 'invalidated', target: _this });
+                    });
+                    registeredInjectors.push(injector);
                 }
-                if (parameters.indexOf(name_1) !== -1 || searchParameters.indexOf(name_1) !== -1) {
-                    throw new TypeError("Parameter must have a unique name, got '" + name_1 + "'");
-                }
-                var closing = consume();
-                if (!closing || closing !== '}') {
-                    throw new TypeError("Parameter name must be followed by '}', got '" + closing + "'");
-                }
-                var separator = peek();
-                if (separator) {
-                    if (inSearchComponent) {
-                        if (separator !== '&') {
-                            throw new TypeError("Search parameter must be followed by '&', got '" + separator + "'");
-                        }
-                    }
-                    else if (separator !== '/' && separator !== '?') {
-                        throw new TypeError("Parameter must be followed by '/' or '?', got '" + separator + "'");
-                    }
-                }
-                if (inSearchComponent) {
-                    searchParameters.push(name_1);
-                }
-                else {
-                    parameters.push(name_1);
-                    expectedSegments.push(Object.freeze({ name: name_1 }));
-                }
-                break;
+                return getProperties(injector.get(), properties);
             }
-            case '?':
-            case '/':
-                if (inSearchComponent) {
-                    throw new TypeError("Expected parameter in search component, got '" + t + "'");
-                }
-                if (t === '?') {
-                    inSearchComponent = true;
-                    if (expectedSegments.length === 0) {
-                        throw new TypeError('Path must contain at least one segment');
-                    }
-                }
-                if (t === '/') {
-                    var next_1 = peek();
-                    if (next_1 === '/') {
-                        throw new TypeError('Path segment must not be empty');
-                    }
-                    if (expectedSegments.length > 0 && (!next_1 || next_1 === '?')) {
-                        trailingSlash = true;
-                    }
-                }
-                break;
-            case '&':
-                if (!inSearchComponent) {
-                    throw new TypeError('Path segment must not contain \'&\'');
-                }
-                var next = peek();
-                if (next === '&') {
-                    throw new TypeError('Expected parameter in search component, got \'&\'');
-                }
-                break;
-            default:
-                if (inSearchComponent) {
-                    throw new TypeError("Expected parameter in search component, got '" + t + "'");
-                }
-                expectedSegments.push(Object.freeze({ literal: t }));
-        }
-    }
-    return Object.freeze({
-        expectedSegments: Object.freeze(expectedSegments),
-        leadingSlash: leadingSlash,
-        parameters: Object.freeze(parameters),
-        searchParameters: Object.freeze(searchParameters),
-        trailingSlash: trailingSlash
+        })(target);
     });
 }
-exports.deconstruct = deconstruct;
+exports.inject = inject;
+exports.default = inject;
 
 
 /***/ }),
-/* 30 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var WeakMap_1 = __webpack_require__(10);
-exports.parentMap = new WeakMap_1.default();
-/**
- * Whether the route has been appended to another route or router.
- */
-function hasBeenAppended(route) {
-    return exports.parentMap.has(route) || route.parent !== undefined;
-}
-exports.hasBeenAppended = hasBeenAppended;
-/**
- * Finds the router whose route hierarchy the route has been appended to.
- *
- * Throws if the route was not appended to any router.
- */
-function findRouter(route) {
-    while (route.parent) {
-        route = route.parent;
-    }
-    var router = exports.parentMap.get(route);
-    if (!router) {
-        throw new Error('Cannot generate link for route that is not in the hierarchy');
-    }
-    else {
-        return router;
-    }
-}
-exports.findRouter = findRouter;
-
-
-/***/ }),
-/* 31 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Registry_1 = __webpack_require__(13);
+var Registry_1 = __webpack_require__(10);
 function isObjectOrArray(value) {
     return Object.prototype.toString.call(value) === '[object Object]' || Array.isArray(value);
 }
@@ -5064,26 +3997,26 @@ exports.auto = auto;
 
 
 /***/ }),
-/* 32 */
+/* 23 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 33 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 var require = function () { return 'src/main'; };
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Projector_1 = __webpack_require__(57);
-var Registry_1 = __webpack_require__(13);
-var RouterInjector_1 = __webpack_require__(16);
-var Context_1 = __webpack_require__(60);
-var App_1 = __webpack_require__(65);
-var registerServiceWorker_1 = __webpack_require__(64);
-var load_1 = __webpack_require__(42);
+var Projector_1 = __webpack_require__(42);
+var Registry_1 = __webpack_require__(10);
+// import { registerRouterInjector } from '@dojo/routing/RouterInjector';
+var Context_1 = __webpack_require__(45);
+var App_1 = __webpack_require__(48);
+var registerServiceWorker_1 = __webpack_require__(47);
+var load_1 = __webpack_require__(31);
 var registry = new Registry_1.Registry();
 registry.define('content', function() { return (__webpack_require__.e/* require.ensure */(0).then((function () {
     return load_1.default(require, './widgets/Content').then(function (_a) {
@@ -5091,46 +4024,361 @@ registry.define('content', function() { return (__webpack_require__.e/* require.
         return someWidget.Content;
     });
 }).bind(null, __webpack_require__)).catch(__webpack_require__.oe))});
-var routingConfig = [
-    {
-        path: 'user',
-        outlet: 'user'
-    },
-    {
-        path: '{category}',
-        outlet: 'menu',
-        defaultRoute: true,
-        defaultParams: {
-            category: 'top'
-        }
-    }
-];
-var router = RouterInjector_1.registerRouterInjector(routingConfig, registry);
+// const routingConfig = [
+// 	{
+// 		path: 'user',
+// 		outlet: 'user'
+// 	},
+// 	{
+//         path: '{category}',
+//         outlet: 'menu',
+//         defaultRoute: true,
+//         defaultParams: {
+//             category: 'top'
+//         }
+//     }
+// ];
+// const router = registerRouterInjector(routingConfig, registry);
 registry.defineInjector('state', new Context_1.Context({}));
 var Projector = Projector_1.ProjectorMixin(App_1.App);
 var projector = new Projector();
 projector.setProperties({ registry: registry });
 projector.append();
-router.start();
+// router.start();
 registerServiceWorker_1.default();
 
 
 /***/ }),
-/* 34 */
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var lang_1 = __webpack_require__(5);
+var array_1 = __webpack_require__(19);
+var Map_1 = __webpack_require__(4);
+var Injector_1 = __webpack_require__(20);
+var inject_1 = __webpack_require__(21);
+var handleDecorator_1 = __webpack_require__(7);
+var diffProperty_1 = __webpack_require__(41);
+var diff_1 = __webpack_require__(22);
+var THEME_KEY = ' _key';
+exports.INJECTED_THEME_KEY = Symbol('theme');
+/**
+ * Decorator for base css classes
+ */
+function theme(theme) {
+    return handleDecorator_1.handleDecorator(function (target) {
+        target.addDecorator('baseThemeClasses', theme);
+    });
+}
+exports.theme = theme;
+/**
+ * Split class strings containing spaces into separate array entries.
+ * ie. ['class1 class2', 'class3] -> ['class1', 'class2', 'class3'];
+ *
+ * @param classes The array of class strings to split.
+ * @return the complete classes array including any split classes.
+ */
+function splitClassStrings(classes) {
+    return classes.reduce(function (splitClasses, className) {
+        if (className.indexOf(' ') > -1) {
+            splitClasses.push.apply(splitClasses, className.split(' '));
+        }
+        else {
+            splitClasses.push(className);
+        }
+        return splitClasses;
+    }, []);
+}
+/**
+ * Returns the class object map based on the class names and whether they are
+ * active.
+ *
+ * @param className an array of string class names
+ * @param applied indicates is the class is applied
+ */
+function createClassNameObject(classNames, applied) {
+    return classNames.reduce(function (flaggedClassNames, className) {
+        flaggedClassNames[className] = applied;
+        return flaggedClassNames;
+    }, {});
+}
+/**
+ * Creates a reverse lookup for the classes passed in via the `theme` function.
+ *
+ * @param classes The baseClasses object
+ * @requires
+ */
+function createThemeClassesLookup(classes) {
+    return classes.reduce(function (currentClassNames, baseClass) {
+        Object.keys(baseClass).forEach(function (key) {
+            currentClassNames[baseClass[key]] = key;
+        });
+        return currentClassNames;
+    }, {});
+}
+/**
+ * Convenience function that is given a theme and an optional registry, the theme
+ * injector is defined against the registry, returning the theme.
+ *
+ * @param theme the theme to set
+ * @param themeRegistry registry to define the theme injector against. Defaults
+ * to the global registry
+ *
+ * @returns the theme injector used to set the theme
+ */
+function registerThemeInjector(theme, themeRegistry) {
+    var themeInjector = new Injector_1.Injector(theme);
+    themeRegistry.defineInjector(exports.INJECTED_THEME_KEY, themeInjector);
+    return themeInjector;
+}
+exports.registerThemeInjector = registerThemeInjector;
+/**
+ * Function that returns a class decorated with with Themeable functionality
+ */
+function ThemeableMixin(Base) {
+    var Themeable = (function (_super) {
+        __extends(Themeable, _super);
+        function Themeable() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            /**
+             * All classes ever seen by the instance
+             */
+            _this._allClasses = {};
+            /**
+             * Indicates if classes meta data need to be calculated.
+             */
+            _this._recalculateClasses = true;
+            /**
+             * Map of registered classes
+             */
+            _this._registeredClassesMap = new Map_1.default();
+            /**
+             * Loaded theme
+             */
+            _this._theme = {};
+            return _this;
+        }
+        /**
+         * Function used to add themeable classes to a widget. Returns a chained function 'fixed'
+         * that can be used to pass non-themeable classes to a widget. Filters out any null
+         * values passed.
+         *
+         * @param classNames the classes to be added to the domNode. These classes must come from
+         * the baseClasses passed into the @theme decorator.
+         * @return A function chain containing the 'fixed' function and a 'get' finalizer function.
+         * Class names passed to the 'fixed' function can be any string.
+         *
+         */
+        Themeable.prototype.classes = function () {
+            var classNames = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                classNames[_i] = arguments[_i];
+            }
+            if (this._recalculateClasses) {
+                this._recalculateThemeClasses();
+            }
+            var themeable = this;
+            function classesGetter() {
+                var themeClasses = themeable._getThemeClasses(this.classes);
+                var fixedClasses = themeable._getFixedClasses(this.fixedClasses);
+                return lang_1.assign({}, themeable._allClasses, themeClasses, fixedClasses);
+            }
+            var classesFunctionChain = {
+                classes: classNames,
+                fixedClasses: [],
+                fixed: function () {
+                    var classNames = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        classNames[_i] = arguments[_i];
+                    }
+                    var filteredClassNames = classNames.filter(function (className) { return className !== null; });
+                    (_a = this.fixedClasses).push.apply(_a, filteredClassNames);
+                    return this;
+                    var _a;
+                },
+                get: classesGetter
+            };
+            return lang_1.assign(classesGetter.bind(classesFunctionChain), classesFunctionChain);
+        };
+        /**
+         * Function fired when `theme` or `extraClasses` are changed.
+         */
+        Themeable.prototype.onPropertiesChanged = function () {
+            this._recalculateClasses = true;
+        };
+        /**
+         * Get theme class object from classNames
+         */
+        Themeable.prototype._getThemeClasses = function (classNames) {
+            var _this = this;
+            return classNames
+                .filter(function (className) { return !!className; })
+                .reduce(function (appliedClasses, className) {
+                if (!_this._baseThemeClassesReverseLookup[className]) {
+                    console.warn("Class name: " + className + " not found, use chained 'fixed' method instead");
+                    return appliedClasses;
+                }
+                className = _this._baseThemeClassesReverseLookup[className];
+                if (!_this._registeredClassesMap.has(className)) {
+                    _this._registerThemeClass(className);
+                }
+                return lang_1.assign(appliedClasses, _this._registeredClassesMap.get(className));
+            }, {});
+        };
+        /**
+         * Get fixed class object from classNames
+         */
+        Themeable.prototype._getFixedClasses = function (classNames) {
+            var splitClasses = splitClassStrings(classNames);
+            this._appendToAllClassNames(splitClasses);
+            return createClassNameObject(splitClasses, true);
+        };
+        /**
+         * Adds classes to the internal allClasses property
+         *
+         * @param classNames an array of string class names
+         */
+        Themeable.prototype._appendToAllClassNames = function (classNames) {
+            var negativeClassFlags = createClassNameObject(classNames, false);
+            this._allClasses = lang_1.assign({}, this._allClasses, negativeClassFlags);
+        };
+        /**
+         * Register the classes object for the class name and adds the class to the instances `allClasses` object.
+         *
+         * @param className the name of the class to register.
+         */
+        Themeable.prototype._registerThemeClass = function (className) {
+            var _this = this;
+            var _a = this.properties.extraClasses, extraClasses = _a === void 0 ? {} : _a;
+            var themeClass = this._theme[className] ? this._theme[className] : this._getBaseThemeClass(className);
+            var extraClassesClassNames = extraClasses[className];
+            var extraClassesClassNamesArray = extraClassesClassNames ? extraClassesClassNames.split(' ') : [];
+            var cssClassNames = themeClass.split(' ').concat(extraClassesClassNamesArray);
+            var classesObject = cssClassNames.reduce(function (classesObject, cssClassName) {
+                classesObject[cssClassName] = true;
+                _this._allClasses[cssClassName] = false;
+                return classesObject;
+            }, {});
+            this._registeredClassesMap.set(className, classesObject);
+        };
+        /**
+         * Recalculate registered classes for current theme.
+         */
+        Themeable.prototype._recalculateThemeClasses = function () {
+            var _this = this;
+            var _a = this.properties, _b = _a.injectedTheme, injectedTheme = _b === void 0 ? {} : _b, _c = _a.theme, theme = _c === void 0 ? injectedTheme : _c;
+            if (!this._registeredBaseThemes) {
+                this._registeredBaseThemes = this.getDecorator('baseThemeClasses').slice().reverse();
+                this._checkForDuplicates();
+            }
+            var registeredBaseThemeKeys = this._registeredBaseThemes.map(function (registeredBaseThemeClasses) {
+                return registeredBaseThemeClasses[THEME_KEY];
+            });
+            this._baseThemeClassesReverseLookup = createThemeClassesLookup(this._registeredBaseThemes);
+            this._theme = registeredBaseThemeKeys.reduce(function (baseTheme, themeKey) {
+                return lang_1.assign(baseTheme, theme[themeKey]);
+            }, {});
+            this._registeredClassesMap.forEach(function (value, key) {
+                _this._registerThemeClass(key);
+            });
+            this._recalculateClasses = false;
+        };
+        /**
+         * Find the base theme class for the class name
+         */
+        Themeable.prototype._getBaseThemeClass = function (className) {
+            var registeredBaseTheme = array_1.find(this._registeredBaseThemes, function (registeredBaseThemeClasses) {
+                return Boolean(registeredBaseThemeClasses[className]);
+            });
+            return (registeredBaseTheme && registeredBaseTheme[className]) || '';
+        };
+        /**
+         * Check for duplicates across the registered base themes.
+         */
+        Themeable.prototype._checkForDuplicates = function () {
+            var _this = this;
+            this._registeredBaseThemes.forEach(function (registeredBaseThemeClasses, index) {
+                Object.keys(registeredBaseThemeClasses).some(function (key) {
+                    return _this._isDuplicate(key, registeredBaseThemeClasses);
+                });
+            });
+        };
+        /**
+         * Search for the class name in other base themes
+         */
+        Themeable.prototype._isDuplicate = function (key, originatingBaseTheme) {
+            var duplicate = false;
+            if (key !== THEME_KEY) {
+                for (var i = 0; i < this._registeredBaseThemes.length; i++) {
+                    if (originatingBaseTheme === this._registeredBaseThemes[i]) {
+                        continue;
+                    }
+                    if (this._registeredBaseThemes[i][key]) {
+                        console.warn("Duplicate base theme class key '" + key + "' detected, this could cause unexpected results");
+                        duplicate = true;
+                        break;
+                    }
+                }
+                return duplicate;
+            }
+            return duplicate;
+        };
+        __decorate([
+            diffProperty_1.diffProperty('theme', diff_1.shallow),
+            diffProperty_1.diffProperty('extraClasses', diff_1.shallow),
+            __metadata("design:type", Function),
+            __metadata("design:paramtypes", []),
+            __metadata("design:returntype", void 0)
+        ], Themeable.prototype, "onPropertiesChanged", null);
+        Themeable = __decorate([
+            inject_1.inject({
+                name: exports.INJECTED_THEME_KEY,
+                getProperties: function (theme, properties) {
+                    if (!properties.theme) {
+                        return { theme: theme };
+                    }
+                    return {};
+                }
+            })
+        ], Themeable);
+        return Themeable;
+    }(Base));
+    return Themeable;
+}
+exports.ThemeableMixin = ThemeableMixin;
+exports.default = ThemeableMixin;
+
+
+/***/ }),
+/* 26 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 module.exports = {" _key":"menu","root":"_34HPGizk","menuContainer":"_1lZUlBuW","home":"_3ExrLjEz","logo":"_2cdP4aDq"};
 
 /***/ }),
-/* 35 */
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-module.exports = {" _key":"menuItem","root":"_3nC3wHuO","item":"_2otQ-Bk4","selected":"_3H86Omvm"};
-
-/***/ }),
-/* 36 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -5320,16 +4568,16 @@ module.exports = {" _key":"menuItem","root":"_3nC3wHuO","item":"_2otQ-Bk4","sele
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(21), __webpack_require__(24)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15), __webpack_require__(17)))
 
 /***/ }),
-/* 37 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var iterator_1 = __webpack_require__(9);
+var iterator_1 = __webpack_require__(6);
 function isPlugin(value) {
     return Boolean(value) && typeof value.load === 'function';
 }
@@ -5350,13 +4598,13 @@ exports.useDefault = useDefault;
 
 
 /***/ }),
-/* 38 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Promise_1 = __webpack_require__(8);
+var Promise_1 = __webpack_require__(9);
 /**
  * No operation function to replace own once instance is destoryed
  */
@@ -5415,13 +4663,13 @@ exports.default = Destroyable;
 
 
 /***/ }),
-/* 39 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var WeakMap_1 = __webpack_require__(10);
+var WeakMap_1 = __webpack_require__(12);
 var lang_1 = __webpack_require__(5);
 /**
  * An internal type guard that determines if an value is MapLike or not
@@ -5762,403 +5010,15 @@ exports.on = on;
 
 
 /***/ }),
-/* 40 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+var __modules__ = {"@dojo/shim/global":{"id":0,"lazy":false},"@dojo/shim/Symbol":{"id":2,"lazy":false},"@dojo/core/Evented":{"id":3,"lazy":false},"@dojo/shim/Map":{"id":4,"lazy":false},"@dojo/core/lang":{"id":5,"lazy":false},"@dojo/widget-core/d":{"id":8,"lazy":false},"@dojo/shim/Promise":{"id":9,"lazy":false},"@dojo/widget-core/Registry":{"id":10,"lazy":false},"@dojo/widget-core/WidgetBase":{"id":11,"lazy":false},"@dojo/shim/WeakMap":{"id":12,"lazy":false},"maquette":{"id":16,"lazy":false},"@dojo/has/has":{"id":18,"lazy":false},"@dojo/shim/array":{"id":19,"lazy":false},"@dojo/widget-core/Injector":{"id":20,"lazy":false},"@dojo/widget-core/mixins/Themeable":{"id":25,"lazy":false},"setimmediate":{"id":27,"lazy":false},"@dojo/core/load":{"id":31,"lazy":false},"@dojo/widget-core/Container":{"id":35,"lazy":false},"@dojo/widget-core/mixins/Projector":{"id":42,"lazy":false},"src/Context":{"id":45,"lazy":false},"src/registerServiceWorker":{"id":47,"lazy":false},"src/widgets/App":{"id":48,"lazy":false},"src/widgets/Content":{"id":51,"lazy":false}};
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var iterator_1 = __webpack_require__(9);
-var Promise_1 = __webpack_require__(8);
-__webpack_require__(3);
-/**
- * Take a list of values, and if any are ExtensiblePromise objects, insert the wrapped Promise in its place,
- * otherwise use the original object. We use this to help use the native Promise methods like `all` and `race`.
- *
- * @param iterable    The list of objects to iterate over
- * @returns {any[]}    The list of objects, as an array, with ExtensiblePromises being replaced by Promises.
- */
-function unwrapPromises(iterable) {
-    var unwrapped = [];
-    iterator_1.forOf(iterable, function (item) {
-        unwrapped.push(item instanceof ExtensiblePromise ? item._promise : item);
-    });
-    return unwrapped;
-}
-exports.unwrapPromises = unwrapPromises;
-/**
- * An extensible base to allow Promises to be extended in ES5. This class basically wraps a native Promise object,
- * giving an API like a native promise.
- */
-var ExtensiblePromise = (function () {
-    /**
-     * Creates a new extended Promise.
-     *
-     * @constructor
-     *
-     * @param executor
-     * The executor function is called immediately when the Promise is instantiated. It is responsible for
-     * starting the asynchronous operation when it is invoked.
-     *
-     * The executor must call either the passed `resolve` function when the asynchronous operation has completed
-     * successfully, or the `reject` function when the operation fails.
-     */
-    function ExtensiblePromise(executor) {
-        this._promise = new Promise_1.default(executor);
-    }
-    /**
-     * Return a rejected promise wrapped in an ExtensiblePromise
-     *
-     * @param reason    The reason for the rejection
-     * @returns An extensible promise
-     */
-    ExtensiblePromise.reject = function (reason) {
-        return new this(function (resolve, reject) { return reject(reason); });
-    };
-    ExtensiblePromise.resolve = function (value) {
-        return new this(function (resolve, reject) { return resolve(value); });
-    };
-    /**
-     * Return a ExtensiblePromise that resolves when all of the passed in objects have resolved. When used with a key/value
-     * pair, the returned promise's argument is a key/value pair of the original keys with their resolved values.
-     *
-     * @example
-     * ExtensiblePromise.all({ one: 1, two: 2 }).then(results => console.log(results));
-     * // { one: 1, two: 2 }
-     *
-     * @param iterable    An iterable of values to resolve, or a key/value pair of values to resolve. These can be Promises, ExtensiblePromises, or other objects
-     * @returns An extensible promise
-     */
-    ExtensiblePromise.all = function (iterable) {
-        if (!iterator_1.isArrayLike(iterable) && !iterator_1.isIterable(iterable)) {
-            var promiseKeys_1 = Object.keys(iterable);
-            return new this(function (resolve, reject) {
-                Promise_1.default.all(promiseKeys_1.map(function (key) { return iterable[key]; })).then(function (promiseResults) {
-                    var returnValue = {};
-                    promiseResults.forEach(function (value, index) {
-                        returnValue[promiseKeys_1[index]] = value;
-                    });
-                    resolve(returnValue);
-                }, reject);
-            });
-        }
-        return new this(function (resolve, reject) {
-            Promise_1.default.all(unwrapPromises(iterable)).then(resolve, reject);
-        });
-    };
-    /**
-     * Return a ExtensiblePromise that resolves when one of the passed in objects have resolved
-     *
-     * @param iterable    An iterable of values to resolve. These can be Promises, ExtensiblePromises, or other objects
-     * @returns {ExtensiblePromise}
-     */
-    ExtensiblePromise.race = function (iterable) {
-        return new this(function (resolve, reject) {
-            Promise_1.default.race(unwrapPromises(iterable)).then(resolve, reject);
-        });
-    };
-    /**
-     * Adds a callback to be invoked when the wrapped Promise is rejected.
-     *
-     * @param {Function} onRejected A function to call to handle the error. The parameter to the function will be the caught error.
-     *
-     * @returns {ExtensiblePromise}
-     */
-    ExtensiblePromise.prototype.catch = function (onRejected) {
-        return this.then(undefined, onRejected);
-    };
-    /**
-     * Adds a callback to be invoked when the wrapped Promise resolves or is rejected.
-     *
-     * @param {Function} onFulfilled   A function to call to handle the resolution. The paramter to the function will be the resolved value, if any.
-     * @param {Function} onRejected    A function to call to handle the error. The parameter to the function will be the caught error.
-     *
-     * @returns {ExtensiblePromise}
-     */
-    ExtensiblePromise.prototype.then = function (onFulfilled, onRejected) {
-        var _this = this;
-        var executor = function (resolve, reject) {
-            function handler(rejected, valueOrError) {
-                var callback = rejected ? onRejected : onFulfilled;
-                if (typeof callback === 'function') {
-                    try {
-                        resolve(callback(valueOrError));
-                    }
-                    catch (error) {
-                        reject(error);
-                    }
-                }
-                else if (rejected) {
-                    reject(valueOrError);
-                }
-                else {
-                    resolve(valueOrError);
-                }
-            }
-            _this._promise.then(handler.bind(null, false), handler.bind(null, true));
-        };
-        return new this.constructor(executor);
-    };
-    return ExtensiblePromise;
-}());
-exports.default = ExtensiblePromise;
-
-
-/***/ }),
-/* 41 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var ExtensiblePromise_1 = __webpack_require__(40);
-/**
- * A type guard that determines if `value` is a `Task`
- * @param value The value to guard
- */
-function isTask(value) {
-    return Boolean(value && typeof value.cancel === 'function' && Array.isArray(value.children) && isThenable(value));
-}
-exports.isTask = isTask;
-/**
- * Returns true if a given value has a `then` method.
- * @param {any} value The value to check if is Thenable
- * @returns {is Thenable<T>} A type guard if the value is thenable
- */
-function isThenable(value) {
-    return value && typeof value.then === 'function';
-}
-exports.isThenable = isThenable;
-/**
- * Task is an extension of Promise that supports cancellation and the Task#finally method.
- */
-var Task = (function (_super) {
-    __extends(Task, _super);
-    /**
-     * @constructor
-     *
-     * Create a new task. Executor is run immediately. The canceler will be called when the task is canceled.
-     *
-     * @param executor Method that initiates some task
-     * @param canceler Method to call when the task is canceled
-     *
-     */
-    function Task(executor, canceler) {
-        var _this = this;
-        // we have to initialize these to avoid a compiler error of using them before they are initialized
-        var superResolve = function () { };
-        var superReject = function () { };
-        _this = _super.call(this, function (resolve, reject) {
-            superResolve = resolve;
-            superReject = reject;
-        }) || this;
-        _this._state = 1 /* Pending */;
-        _this.children = [];
-        _this.canceler = function () {
-            if (canceler) {
-                canceler();
-            }
-            _this._cancel();
-        };
-        // Don't let the Task resolve if it's been canceled
-        try {
-            executor(function (value) {
-                if (_this._state === 3 /* Canceled */) {
-                    return;
-                }
-                _this._state = 0 /* Fulfilled */;
-                superResolve(value);
-            }, function (reason) {
-                if (_this._state === 3 /* Canceled */) {
-                    return;
-                }
-                _this._state = 2 /* Rejected */;
-                superReject(reason);
-            });
-        }
-        catch (reason) {
-            _this._state = 2 /* Rejected */;
-            superReject(reason);
-        }
-        return _this;
-    }
-    /**
-     * Return a Task that resolves when one of the passed in objects have resolved
-     *
-     * @param iterable    An iterable of values to resolve. These can be Promises, ExtensiblePromises, or other objects
-     * @returns {Task}
-     */
-    Task.race = function (iterable) {
-        return new this(function (resolve, reject) {
-            Promise.race(ExtensiblePromise_1.unwrapPromises(iterable)).then(resolve, reject);
-        });
-    };
-    /**
-     * Return a rejected promise wrapped in a Task
-     *
-     * @param reason The reason for the rejection
-     * @returns A task
-     */
-    Task.reject = function (reason) {
-        return new this(function (resolve, reject) { return reject(reason); });
-    };
-    /**
-     * Return a resolved task.
-     *
-     * @param value The value to resolve with
-     *
-     * @return A task
-     */
-    Task.resolve = function (value) {
-        return new this(function (resolve, reject) { return resolve(value); });
-    };
-    /**
-     * Return a ExtensiblePromise that resolves when all of the passed in objects have resolved. When used with a key/value
-     * pair, the returned promise's argument is a key/value pair of the original keys with their resolved values.
-     *
-     * @example
-     * ExtensiblePromise.all({ one: 1, two: 2 }).then(results => console.log(results));
-     * // { one: 1, two: 2 }
-     *
-     * @param iterable    An iterable of values to resolve, or a key/value pair of values to resolve. These can be Promises, ExtensiblePromises, or other objects
-     * @returns An extensible promise
-     */
-    Task.all = function (iterable) {
-        return _super.all.call(this, iterable);
-    };
-    Object.defineProperty(Task.prototype, "state", {
-        get: function () {
-            return this._state;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    /**
-     * Propagates cancellation down through a Task tree. The Task's state is immediately set to canceled. If a Thenable
-     * finally task was passed in, it is resolved before calling this Task's finally callback; otherwise, this Task's
-     * finally callback is immediately executed. `_cancel` is called for each child Task, passing in the value returned
-     * by this Task's finally callback or a Promise chain that will eventually resolve to that value.
-     */
-    Task.prototype._cancel = function (finallyTask) {
-        var _this = this;
-        this._state = 3 /* Canceled */;
-        var runFinally = function () {
-            try {
-                return _this._finally();
-            }
-            catch (error) {
-                // Any errors in a `finally` callback are completely ignored during cancelation
-            }
-        };
-        if (this._finally) {
-            if (isThenable(finallyTask)) {
-                finallyTask = finallyTask.then(runFinally, runFinally);
-            }
-            else {
-                finallyTask = runFinally();
-            }
-        }
-        this.children.forEach(function (child) {
-            child._cancel(finallyTask);
-        });
-    };
-    /**
-     * Immediately cancels this task if it has not already resolved. This Task and any descendants are synchronously set
-     * to the Canceled state and any `finally` added downstream from the canceled Task are invoked.
-     */
-    Task.prototype.cancel = function () {
-        if (this._state === 1 /* Pending */) {
-            this.canceler();
-        }
-    };
-    Task.prototype.catch = function (onRejected) {
-        return this.then(undefined, onRejected);
-    };
-    /**
-     * Allows for cleanup actions to be performed after resolution of a Promise.
-     */
-    Task.prototype.finally = function (callback) {
-        // if this task is already canceled, call the task
-        if (this._state === 3 /* Canceled */) {
-            callback();
-            return this;
-        }
-        var task = this.then(function (value) { return Task.resolve(callback()).then(function () { return value; }); }, function (reason) { return Task.resolve(callback()).then(function () {
-            throw reason;
-        }); });
-        // Keep a reference to the callback; it will be called if the Task is canceled
-        task._finally = callback;
-        return task;
-    };
-    /**
-     * Adds a callback to be invoked when the Task resolves or is rejected.
-     *
-     * @param onFulfilled   A function to call to handle the resolution. The paramter to the function will be the resolved value, if any.
-     * @param onRejected    A function to call to handle the error. The parameter to the function will be the caught error.
-     *
-     * @returns A task
-     */
-    Task.prototype.then = function (onFulfilled, onRejected) {
-        var _this = this;
-        // FIXME
-        // tslint:disable-next-line:no-var-keyword
-        var task = _super.prototype.then.call(this, 
-        // Don't call the onFulfilled or onRejected handlers if this Task is canceled
-        function (value) {
-            if (task._state === 3 /* Canceled */) {
-                return;
-            }
-            if (onFulfilled) {
-                return onFulfilled(value);
-            }
-            return value;
-        }, function (error) {
-            if (task._state === 3 /* Canceled */) {
-                return;
-            }
-            if (onRejected) {
-                return onRejected(error);
-            }
-            throw error;
-        });
-        task.canceler = function () {
-            // If task's parent (this) hasn't been resolved, cancel it; downward propagation will start at the first
-            // unresolved parent
-            if (_this._state === 1 /* Pending */) {
-                _this.cancel();
-            }
-            else {
-                task._cancel();
-            }
-        };
-        // Keep track of child Tasks for propogating cancelation back down the chain
-        this.children.push(task);
-        return task;
-    };
-    return Task;
-}(ExtensiblePromise_1.default));
-exports.default = Task;
-
-
-/***/ }),
-/* 42 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-var __modules__ = {"@dojo/shim/global":{"id":0,"lazy":false},"@dojo/widget-core/d":{"id":1,"lazy":false},"@dojo/core/Evented":{"id":2,"lazy":false},"@dojo/shim/Symbol":{"id":3,"lazy":false},"@dojo/core/lang":{"id":5,"lazy":false},"@dojo/shim/Map":{"id":6,"lazy":false},"@dojo/widget-core/WidgetBase":{"id":7,"lazy":false},"@dojo/shim/Promise":{"id":8,"lazy":false},"@dojo/shim/WeakMap":{"id":10,"lazy":false},"@dojo/shim/object":{"id":12,"lazy":false},"@dojo/widget-core/Registry":{"id":13,"lazy":false},"@dojo/core/UrlSearchParams":{"id":15,"lazy":false},"@dojo/routing/RouterInjector":{"id":16,"lazy":false},"@dojo/shim/array":{"id":18,"lazy":false},"@dojo/widget-core/Injector":{"id":20,"lazy":false},"@dojo/widget-core/mixins/Themeable":{"id":22,"lazy":false},"maquette":{"id":23,"lazy":false},"@dojo/core/on":{"id":25,"lazy":false},"@dojo/has/has":{"id":26,"lazy":false},"@dojo/routing/Link":{"id":27,"lazy":false},"@dojo/routing/Outlet":{"id":28,"lazy":false},"setimmediate":{"id":36,"lazy":false},"@dojo/core/async/Task":{"id":41,"lazy":false},"@dojo/core/load":{"id":42,"lazy":false},"@dojo/widget-core/Container":{"id":50,"lazy":false},"@dojo/widget-core/mixins/Projector":{"id":57,"lazy":false},"src/Context":{"id":60,"lazy":false},"src/registerServiceWorker":{"id":64,"lazy":false},"src/widgets/App":{"id":65,"lazy":false},"src/widgets/Content":{"id":69,"lazy":false}};
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Promise_1 = __webpack_require__(8);
-var util_1 = __webpack_require__(37);
+var Promise_1 = __webpack_require__(9);
+var util_1 = __webpack_require__(28);
 exports.isPlugin = util_1.isPlugin;
 exports.useDefault = util_1.useDefault;
 /**
@@ -6244,801 +5104,7 @@ exports.default = load;
 
 
 /***/ }),
-/* 43 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var UrlSearchParams_1 = __webpack_require__(15);
-var WeakMap_1 = __webpack_require__(10);
-var interfaces_1 = __webpack_require__(17);
-var path_1 = __webpack_require__(29);
-var router_1 = __webpack_require__(30);
-// Store parent relationships in a separate map, since it's the parent that adds entries to this map. Parents shouldn't
-// change the private state of their children.
-var parentMap = new WeakMap_1.default();
-var noop = function () {
-};
-function computeDefaultParams(parameters, searchParameters, fromPathname, searchParams) {
-    var params = {};
-    parameters.forEach(function (name, index) {
-        params[name] = fromPathname[index];
-    });
-    searchParameters.forEach(function (name) {
-        var value = searchParams.get(name);
-        if (value !== undefined) {
-            params[name] = value;
-        }
-    });
-    return params;
-}
-var Route = (function () {
-    function Route(options) {
-        if (options === void 0) { options = {}; }
-        var exec = options.exec, fallback = options.fallback, guard = options.guard, index = options.index, computeParams = options.params, path = options.path, outlet = options.outlet, _a = options.trailingSlashMustMatch, trailingSlashMustMatch = _a === void 0 ? true : _a, _b = options.defaultParams, defaultParams = _b === void 0 ? {} : _b;
-        if (path && /#/.test(path)) {
-            throw new TypeError('Path must not contain \'#\'');
-        }
-        var deconstructedPath = path_1.deconstruct(path || '/');
-        var parameters = deconstructedPath.parameters, searchParameters = deconstructedPath.searchParameters;
-        if (computeParams) {
-            if (parameters.length === 0 && searchParameters.length === 0) {
-                throw new TypeError('Can\'t specify params() if path doesn\'t contain any');
-            }
-            this._computeParams = computeParams;
-        }
-        else {
-            this._computeParams = function (fromPathname, searchParams) {
-                return computeDefaultParams(parameters, searchParameters, fromPathname, searchParams);
-            };
-        }
-        this._exec = exec;
-        this._fallback = fallback;
-        this._guard = guard;
-        this._index = index;
-        this._path = deconstructedPath;
-        this._outlet = outlet;
-        this._routes = [];
-        this._defaultParams = defaultParams;
-        this._trailingSlashMustMatch = trailingSlashMustMatch;
-    }
-    Object.defineProperty(Route.prototype, "parent", {
-        get: function () {
-            return parentMap.get(this);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Route.prototype, "path", {
-        get: function () {
-            return this._path;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Route.prototype, "outlet", {
-        get: function () {
-            return this._outlet;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Route.prototype, "defaultParams", {
-        get: function () {
-            return this._defaultParams;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Route.prototype.append = function (add) {
-        var _this = this;
-        var append = function (route) {
-            if (router_1.hasBeenAppended(route)) {
-                throw new Error('Cannot append route that has already been appended');
-            }
-            _this._routes.push(route);
-            parentMap.set(route, _this);
-        };
-        if (Array.isArray(add)) {
-            for (var _i = 0, add_1 = add; _i < add_1.length; _i++) {
-                var route = add_1[_i];
-                append(route);
-            }
-        }
-        else {
-            append(add);
-        }
-    };
-    Route.prototype.link = function (params) {
-        return router_1.findRouter(this).link(this, params);
-    };
-    Route.prototype.match = function (segments, hasTrailingSlash, searchParams) {
-        var result = path_1.match(this._path, segments);
-        if (result === null) {
-            return null;
-        }
-        if (!result.hasRemaining && this._trailingSlashMustMatch && this._path.trailingSlash !== hasTrailingSlash) {
-            return null;
-        }
-        // Only extract the search params defined in the route's path.
-        var knownSearchParams = this._path.searchParameters.reduce(function (list, name) {
-            var value = searchParams.getAll(name);
-            if (value !== undefined) {
-                list[name] = value;
-            }
-            return list;
-        }, {});
-        var params = this._computeParams(result.values, new UrlSearchParams_1.default(knownSearchParams));
-        if (params === null) {
-            return null;
-        }
-        return {
-            hasRemaining: result.hasRemaining,
-            offset: result.offset,
-            params: params,
-            rawPathValues: result.values,
-            rawSearchParams: knownSearchParams
-        };
-    };
-    Route.prototype.select = function (context, segments, hasTrailingSlash, searchParams) {
-        var matchResult = this.match(segments, hasTrailingSlash, searchParams);
-        // Return early if possible.
-        if (!matchResult || matchResult.hasRemaining && this._routes.length === 0 && !this._fallback && !this._outlet) {
-            return [];
-        }
-        var params = matchResult.params;
-        if (this._guard) {
-            var guardResult = this._guard({ context: context, params: params });
-            if (typeof guardResult === 'string') {
-                return guardResult;
-            }
-            if (!guardResult) {
-                return [];
-            }
-        }
-        var handler = this._exec;
-        var type = interfaces_1.MatchType.PARTIAL;
-        var redirect;
-        var remainingSelection;
-        var selected = false;
-        if (matchResult.hasRemaining) {
-            // Match the remaining segments. Return a hierarchy if nested routes were selected.
-            var remainingSegments_1 = segments.slice(matchResult.offset);
-            selected = this._routes.some(function (nested) {
-                var nestedResult = nested.select(context, remainingSegments_1, hasTrailingSlash, searchParams);
-                if (typeof nestedResult === 'string') {
-                    redirect = nestedResult;
-                    return true;
-                }
-                if (nestedResult.length > 0) {
-                    remainingSelection = nestedResult;
-                    return true;
-                }
-                return false;
-            });
-            // No remaining segments matched, only select this route if a fallback handler was specified.
-            if (!selected && (this._outlet || this._fallback)) {
-                type = interfaces_1.MatchType.ERROR;
-                selected = true;
-                handler = this._fallback || noop;
-            }
-        }
-        else {
-            selected = true;
-            type = interfaces_1.MatchType.INDEX;
-            if (this._index) {
-                handler = this._index;
-            }
-        }
-        if (!selected) {
-            return [];
-        }
-        if (redirect !== undefined) {
-            return redirect;
-        }
-        var rawPathValues = matchResult.rawPathValues, rawSearchParams = matchResult.rawSearchParams;
-        var selection = {
-            // Use a noop handler if exec was not provided. Something needs to be returned otherwise the router may
-            // think no routes were selected.
-            handler: handler || noop,
-            path: this.path,
-            outlet: this.outlet,
-            params: params,
-            rawPathValues: rawPathValues,
-            rawSearchParams: rawSearchParams,
-            route: this,
-            type: type
-        };
-        return remainingSelection ? [selection].concat(remainingSelection) : [selection];
-    };
-    return Route;
-}());
-exports.Route = Route;
-exports.default = Route;
-
-
-/***/ }),
-/* 44 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var Task_1 = __webpack_require__(41);
-var Evented_1 = __webpack_require__(2);
-var object_1 = __webpack_require__(12);
-var on_1 = __webpack_require__(25);
-var UrlSearchParams_1 = __webpack_require__(15);
-var array_1 = __webpack_require__(18);
-var Map_1 = __webpack_require__(6);
-var Promise_1 = __webpack_require__(8);
-var interfaces_1 = __webpack_require__(17);
-var path_1 = __webpack_require__(29);
-var router_1 = __webpack_require__(30);
-var Route_1 = __webpack_require__(43);
-exports.errorOutlet = 'errorOutlet';
-// istanbul ignore next
-var noop = function () {
-};
-function createDeferral() {
-    // Use noop since TypeScript doesn't know we're assigning cancel and resume in the promise executor.
-    var cancel = noop;
-    var resume = noop;
-    var promise = new Promise_1.default(function (resolve, reject) {
-        cancel = reject;
-        // Wrap resolve to avoid resume being called with a thenable if type checking is not used.
-        resume = function () { return resolve(); };
-    });
-    return { cancel: cancel, promise: promise, resume: resume };
-}
-function reportError(router, context, path, error) {
-    router.emit({
-        context: context,
-        error: error,
-        path: path,
-        target: router,
-        type: 'error'
-    });
-}
-function catchRejection(router, context, path, thenable) {
-    if (thenable) {
-        Promise_1.default.resolve(thenable).catch(function (error) {
-            reportError(router, context, path, error);
-        });
-    }
-}
-var Router = (function (_super) {
-    __extends(Router, _super);
-    function Router(options) {
-        if (options === void 0) { options = {}; }
-        var _this = _super.call(this, {}) || this;
-        _this._outletContextMap = new Map_1.default();
-        _this._outletRouteMap = new Map_1.default();
-        _this._currentParams = {};
-        _this._defaultParams = {};
-        var context = options.context, fallback = options.fallback, history = options.history, config = options.config;
-        var contextFactory;
-        if (typeof context === 'function') {
-            contextFactory = context;
-        }
-        else if (typeof context === 'undefined') {
-            contextFactory = function () {
-                return {};
-            };
-        }
-        else {
-            // Assign to a constant since the context variable may be changed after the function is defined,
-            // which would violate its typing.
-            var sharedContext_1 = context;
-            contextFactory = function () { return sharedContext_1; };
-        }
-        if (history) {
-            _this.own(history);
-        }
-        _this._contextFactory = contextFactory;
-        _this._currentSelection = [];
-        _this._dispatchFromStart = false;
-        _this._fallback = fallback;
-        _this._history = history;
-        _this._routes = [];
-        _this._started = false;
-        if (config) {
-            _this.register(config);
-        }
-        return _this;
-    }
-    Router.prototype.register = function (config, from) {
-        var _this = this;
-        if (from === void 0) { from = this; }
-        var parent;
-        if (typeof from === 'string') {
-            parent = this._outletRouteMap.get(from) || this;
-        }
-        else {
-            parent = from;
-        }
-        config.forEach(function (_a) {
-            var defaultRoute = _a.defaultRoute, path = _a.path, _b = _a.outlet, outlet = _b === void 0 ? path : _b, _c = _a.defaultParams, defaultParams = _c === void 0 ? {} : _c, children = _a.children;
-            var route = new Route_1.Route({
-                path: path,
-                outlet: outlet,
-                defaultParams: defaultParams
-            });
-            if (defaultRoute) {
-                if (!_this._defaultRoute) {
-                    _this._defaultRoute = route;
-                }
-                else {
-                    throw new Error("Default outlet has already been configured. Unable to register outlet " + outlet + " as the default.");
-                }
-            }
-            object_1.assign(_this._defaultParams, defaultParams);
-            _this._outletRouteMap.set(outlet, route);
-            parent.append(route);
-            if (children) {
-                _this.register(children, route);
-            }
-        });
-    };
-    Router.prototype.append = function (add) {
-        var _this = this;
-        var append = function (route) {
-            if (router_1.hasBeenAppended(route)) {
-                throw new Error('Cannot append route that has already been appended');
-            }
-            _this._routes.push(route);
-            router_1.parentMap.set(route, _this);
-        };
-        if (Array.isArray(add)) {
-            for (var _i = 0, add_1 = add; _i < add_1.length; _i++) {
-                var route = add_1[_i];
-                append(route);
-            }
-        }
-        else {
-            append(add);
-        }
-    };
-    Router.prototype.dispatch = function (context, path) {
-        var _this = this;
-        // Reset, any further calls can't have come from start(). This is necessary since the navstart listeners
-        // may call dispatch() themselves.
-        var dispatchFromStart = this._dispatchFromStart;
-        this._dispatchFromStart = false;
-        var canceled = false;
-        var cancel = function () {
-            canceled = true;
-        };
-        var deferrals = [];
-        this._currentParams = {};
-        this._outletContextMap.clear();
-        this.emit({
-            cancel: cancel,
-            defer: function () {
-                var _a = createDeferral(), cancel = _a.cancel, promise = _a.promise, resume = _a.resume;
-                deferrals.push(promise);
-                return { cancel: cancel, resume: resume };
-            },
-            path: path,
-            target: this,
-            type: 'navstart'
-        });
-        // Synchronous cancelation.
-        if (canceled) {
-            return Task_1.default.resolve({ success: false });
-        }
-        var _a = path_1.parse(path), searchParams = _a.searchParams, segments = _a.segments, trailingSlash = _a.trailingSlash;
-        return new Task_1.default(function (resolve, reject) {
-            // *Always* start dispatching in a future turn, even if there were no deferrals.
-            Promise_1.default.all(deferrals).then(function () {
-                // The cancel() function used in the NavigationStartEvent is reused as the Task canceler.
-                // Strictly speaking any navstart listener can cancel the dispatch asynchronously, as long as it
-                // manages to do so before this turn.
-                if (canceled) {
-                    return { success: false };
-                }
-                var redirect;
-                var dispatched = _this._routes.some(function (route) {
-                    var result = route.select(context, segments, trailingSlash, searchParams);
-                    if (typeof result === 'string') {
-                        redirect = result;
-                        return true;
-                    }
-                    if (result.length === 0) {
-                        return false;
-                    }
-                    // Update the selected routes after selecting new routes, but before invoking the handlers.
-                    // This means the original value is available to guard() and params() functions, and the
-                    // new value when the newly selected routes are executed.
-                    //
-                    // Reset selected routes if not dispatched from start().
-                    _this._currentSelection = dispatchFromStart ? result : [];
-                    for (var _i = 0, result_1 = result; _i < result_1.length; _i++) {
-                        var _a = result_1[_i], handler = _a.handler, params = _a.params, outlet = _a.outlet, type = _a.type, route_1 = _a.route;
-                        if (outlet) {
-                            if (params) {
-                                object_1.assign(_this._currentParams, params);
-                            }
-                            var location_1 = _this.link(route_1, _this._currentParams);
-                            _this._outletContextMap.set(outlet, { type: type, params: params, location: location_1 });
-                            if (type === interfaces_1.MatchType.ERROR) {
-                                _this._outletContextMap.set(exports.errorOutlet, { type: interfaces_1.MatchType.PARTIAL, params: params, location: location_1 });
-                            }
-                        }
-                        catchRejection(_this, context, path, handler({ context: context, params: params }));
-                    }
-                    return true;
-                });
-                // Reset the selected routes if the dispatch was unsuccessful, or if a redirect was requested.
-                if (!dispatched || redirect !== undefined) {
-                    _this._currentSelection = [];
-                }
-                if (!dispatched) {
-                    _this._outletContextMap.set(exports.errorOutlet, {
-                        type: interfaces_1.MatchType.PARTIAL,
-                        params: {},
-                        location: _this._history ? _this._history.current : ''
-                    });
-                    if (_this._fallback) {
-                        catchRejection(_this, context, path, _this._fallback({ context: context, params: {} }));
-                        return { success: false };
-                    }
-                }
-                var result = { success: dispatched };
-                if (redirect !== undefined) {
-                    result.redirect = redirect;
-                }
-                return result;
-            }, 
-            // When deferrals are canceled their corresponding promise is rejected. Ensure the task resolves
-            // with `false` instead of being rejected too.
-            function () {
-                return { success: false };
-            }).then(resolve, function (error) {
-                reportError(_this, context, path, error);
-                reject(error);
-            });
-        }, cancel);
-    };
-    Router.prototype.link = function (routeOrOutlet, params) {
-        var _this = this;
-        if (params === void 0) { params = {}; }
-        var route;
-        if (typeof routeOrOutlet === 'string') {
-            var item = this._outletRouteMap.get(routeOrOutlet);
-            if (item) {
-                route = item;
-            }
-            else {
-                throw new Error("No outlet " + routeOrOutlet + " has been registered");
-            }
-        }
-        else {
-            route = routeOrOutlet;
-        }
-        var hierarchy = [route];
-        for (var parent_1 = route.parent; parent_1 !== undefined; parent_1 = parent_1.parent) {
-            hierarchy.unshift(parent_1);
-        }
-        if (!array_1.includes(this._routes, hierarchy[0])) {
-            throw new Error('Cannot generate link for route that is not in the hierarchy');
-        }
-        var addLeadingSlash = hierarchy[0].path.leadingSlash;
-        var addTrailingSlash = false;
-        var segments = [];
-        var searchParams = new UrlSearchParams_1.default();
-        hierarchy
-            .map(function (route, index) {
-            var path = route.path;
-            var currentPathValues;
-            var currentSearchParams;
-            var selection = _this._currentSelection[index];
-            if (selection && selection.route === route) {
-                currentPathValues = selection.rawPathValues;
-                currentSearchParams = selection.rawSearchParams;
-            }
-            return { currentPathValues: currentPathValues, currentSearchParams: currentSearchParams, path: path, route: route };
-        })
-            .forEach(function (_a) {
-            var currentPathValues = _a.currentPathValues, currentSearchParams = _a.currentSearchParams, path = _a.path, route = _a.route;
-            var expectedSegments = path.expectedSegments, searchParameters = path.searchParameters, trailingSlash = path.trailingSlash;
-            addTrailingSlash = trailingSlash;
-            var namedOffset = 0;
-            for (var _i = 0, expectedSegments_1 = expectedSegments; _i < expectedSegments_1.length; _i++) {
-                var segment = expectedSegments_1[_i];
-                if (path_1.isNamedSegment(segment)) {
-                    var value = params[segment.name];
-                    if (typeof value === 'string') {
-                        segments.push(value);
-                    }
-                    else if (Array.isArray(value)) {
-                        if (value.length === 1) {
-                            segments.push(value[0]);
-                        }
-                        else {
-                            throw new TypeError("Cannot generate link, multiple values for parameter '" + segment.name + "'");
-                        }
-                    }
-                    else if (currentPathValues) {
-                        segments.push(currentPathValues[namedOffset]);
-                    }
-                    else if (route.defaultParams[segment.name]) {
-                        segments.push(route.defaultParams[segment.name]);
-                    }
-                    else {
-                        throw new Error("Cannot generate link, missing parameter '" + segment.name + "'");
-                    }
-                    namedOffset++;
-                }
-                else {
-                    segments.push(segment.literal);
-                }
-            }
-            for (var _b = 0, searchParameters_1 = searchParameters; _b < searchParameters_1.length; _b++) {
-                var key = searchParameters_1[_b];
-                // Don't repeat the search parameter if a previous route in the hierarchy has already appended
-                // it.
-                if (searchParams.has(key)) {
-                    continue;
-                }
-                var value = params[key] || _this._defaultParams[key];
-                if (typeof value === 'string') {
-                    searchParams.append(key, value);
-                }
-                else if (Array.isArray(value)) {
-                    for (var _c = 0, value_1 = value; _c < value_1.length; _c++) {
-                        var item = value_1[_c];
-                        searchParams.append(key, item);
-                    }
-                }
-                else if (currentSearchParams) {
-                    for (var _d = 0, _e = currentSearchParams[key]; _d < _e.length; _d++) {
-                        var item = _e[_d];
-                        searchParams.append(key, item);
-                    }
-                }
-                else {
-                    throw new Error("Cannot generate link, missing search parameter '" + key + "'");
-                }
-            }
-        });
-        var pathname = segments.join('/');
-        if (addLeadingSlash) {
-            pathname = '/' + pathname;
-        }
-        if (addTrailingSlash) {
-            pathname += '/';
-        }
-        if (this._history) {
-            pathname = this._history.prefix(pathname);
-        }
-        var search = searchParams.toString();
-        var path = search ? pathname + "?" + search : pathname;
-        return path;
-    };
-    Router.prototype.replacePath = function (path) {
-        if (!this._history) {
-            throw new Error('Cannot replace path, router was created without a history manager');
-        }
-        this._history.replace(path);
-    };
-    Router.prototype.setPath = function (path) {
-        if (!this._history) {
-            throw new Error('Cannot set path, router was created without a history manager');
-        }
-        this._history.set(path);
-    };
-    Router.prototype.hasOutlet = function (outletId) {
-        return this._outletContextMap.has(outletId);
-    };
-    Router.prototype.getOutlet = function (outletId) {
-        return this._outletContextMap.get(outletId);
-    };
-    Router.prototype.getCurrentParams = function () {
-        return this._currentParams;
-    };
-    Router.prototype.start = function (startOptions) {
-        var _this = this;
-        if (startOptions === void 0) { startOptions = { dispatchCurrent: true }; }
-        var dispatchCurrent = startOptions.dispatchCurrent;
-        if (this._started) {
-            throw new Error('start can only be called once');
-        }
-        this._started = true;
-        if (!this._history) {
-            return {
-                pause: function () {
-                },
-                resume: function () {
-                },
-                destroy: function () {
-                }
-            };
-        }
-        var lastDispatch;
-        var redirectCount = 0;
-        var redirecting = false;
-        var dispatch = function (path) {
-            if (lastDispatch) {
-                lastDispatch.cancel();
-            }
-            // Reset redirect count if the dispatch was triggered by a non-redirect history change. This allows
-            // a route's exec / fallback / index handler to change the history, setting off a new flurry of
-            // redirects, without being encumbered by the number of redirects that led to that route being selected.
-            if (!redirecting) {
-                redirectCount = 0;
-            }
-            // Signal to dispatch() that it was called from here.
-            _this._dispatchFromStart = true;
-            var context = _this._contextFactory();
-            lastDispatch = _this.dispatch(context, path).then(function (dispatchResult) {
-                var _a = dispatchResult || { success: false }, success = _a.success, _b = _a.redirect, redirect = _b === void 0 ? undefined : _b;
-                if (success && redirect !== undefined) {
-                    redirectCount++;
-                    if (redirectCount > 20) {
-                        var error = new Error('More than 20 redirects, giving up');
-                        reportError(_this, context, path, error);
-                        throw error;
-                    }
-                    redirecting = true;
-                    // The history manager MUST emit the change event synchronously.
-                    _this._history.replace(redirect);
-                    redirecting = false;
-                }
-                return dispatchResult;
-            });
-            return lastDispatch;
-        };
-        var listener = on_1.pausable(this._history, 'change', function (event) {
-            dispatch(event.value);
-        });
-        this.own(listener);
-        if (dispatchCurrent) {
-            dispatch(this._history.current).then(function (dispatchResult) {
-                if (!dispatchResult.success && _this._defaultRoute) {
-                    _this.setPath(_this.link(_this._defaultRoute));
-                }
-            });
-        }
-        return listener;
-    };
-    return Router;
-}(Evented_1.default));
-exports.Router = Router;
-exports.default = Router;
-
-
-/***/ }),
-/* 45 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var global_1 = __webpack_require__(0);
-var on_1 = __webpack_require__(25);
-var HistoryBase_1 = __webpack_require__(46);
-var HashHistory = (function (_super) {
-    __extends(HashHistory, _super);
-    function HashHistory(_a) {
-        var window = (_a === void 0 ? { window: global_1.default } : _a).window;
-        var _this = _super.call(this, {}) || this;
-        var browserLocation = window.location;
-        _this._current = browserLocation.hash.slice(1);
-        _this._browserLocation = browserLocation;
-        _this.own(on_1.default(window, 'hashchange', function () {
-            var path = _this._normalizePath(browserLocation.hash);
-            // Ignore hashchange for the current path. Guards against browsers firing hashchange when the history
-            // manager sets the hash.
-            if (path !== _this._current) {
-                _this._current = path;
-                _this.emit({
-                    type: 'change',
-                    value: path
-                });
-            }
-        }));
-        return _this;
-    }
-    Object.defineProperty(HashHistory.prototype, "current", {
-        get: function () {
-            return this._current;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    HashHistory.prototype.prefix = function (path) {
-        if (path[0] !== '#') {
-            return "#" + path;
-        }
-        return path;
-    };
-    HashHistory.prototype._normalizePath = function (path) {
-        if (path[0] === '#') {
-            path = path.slice(1);
-        }
-        return path;
-    };
-    HashHistory.prototype.set = function (path) {
-        path = this._normalizePath(path);
-        if (this._current === path) {
-            return;
-        }
-        this._current = path;
-        this._browserLocation.hash = this.prefix(path);
-        this.emit({
-            type: 'change',
-            value: path
-        });
-    };
-    HashHistory.prototype.replace = function (path) {
-        path = this._normalizePath(path);
-        if (this._current === path) {
-            return;
-        }
-        this._current = path;
-        var _a = this._browserLocation, pathname = _a.pathname, search = _a.search;
-        this._browserLocation.replace(pathname + search + this.prefix(path));
-        this.emit({
-            type: 'change',
-            value: path
-        });
-    };
-    return HashHistory;
-}(HistoryBase_1.HistoryBase));
-exports.HashHistory = HashHistory;
-exports.default = HashHistory;
-
-
-/***/ }),
-/* 46 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var Evented_1 = __webpack_require__(2);
-var HistoryBase = (function (_super) {
-    __extends(HistoryBase, _super);
-    function HistoryBase() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    return HistoryBase;
-}(Evented_1.Evented));
-exports.HistoryBase = HistoryBase;
-exports.default = HistoryBase;
-
-
-/***/ }),
-/* 47 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7104,15 +5170,15 @@ exports.isSafeInteger = isSafeInteger;
 
 
 /***/ }),
-/* 48 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var global_1 = __webpack_require__(0);
-var has_1 = __webpack_require__(4);
-var util_1 = __webpack_require__(19);
+var has_1 = __webpack_require__(1);
+var util_1 = __webpack_require__(14);
 /**
  * The minimum location of high surrogates
  */
@@ -7337,14 +5403,14 @@ else {
 
 
 /***/ }),
-/* 49 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(setImmediate) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var global_1 = __webpack_require__(0);
-var has_1 = __webpack_require__(4);
+var has_1 = __webpack_require__(1);
 function executeTask(item) {
     if (item && item.isActive && item.callback) {
         item.callback();
@@ -7525,10 +5591,10 @@ exports.queueMicroTask = (function () {
     };
 })();
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(59).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(44).setImmediate))
 
 /***/ }),
-/* 50 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __extends = (this && this.__extends) || (function () {
@@ -7549,9 +5615,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var WidgetBase_1 = __webpack_require__(7);
-var inject_1 = __webpack_require__(14);
-var d_1 = __webpack_require__(1);
+var WidgetBase_1 = __webpack_require__(11);
+var inject_1 = __webpack_require__(21);
+var d_1 = __webpack_require__(8);
 function Container(component, name, _a) {
     var getProperties = _a.getProperties;
     var WidgetContainer = (function (_super) {
@@ -7578,7 +5644,7 @@ exports.default = Container;
 
 
 /***/ }),
-/* 51 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __extends = (this && this.__extends) || (function () {
@@ -7593,8 +5659,8 @@ var __extends = (this && this.__extends) || (function () {
 })();
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Evented_1 = __webpack_require__(2);
-var Map_1 = __webpack_require__(6);
+var Evented_1 = __webpack_require__(3);
+var Map_1 = __webpack_require__(4);
 /**
  * Enum to identify the type of event.
  * Listening to 'Projector' will notify when projector is created or updated
@@ -7642,7 +5708,7 @@ exports.default = NodeHandler;
 
 
 /***/ }),
-/* 52 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __extends = (this && this.__extends) || (function () {
@@ -7657,9 +5723,9 @@ var __extends = (this && this.__extends) || (function () {
 })();
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Map_1 = __webpack_require__(6);
-var Evented_1 = __webpack_require__(2);
-var Registry_1 = __webpack_require__(13);
+var Map_1 = __webpack_require__(4);
+var Evented_1 = __webpack_require__(3);
+var Registry_1 = __webpack_require__(10);
 var RegistryHandler = (function (_super) {
     __extends(RegistryHandler, _super);
     function RegistryHandler() {
@@ -7731,7 +5797,7 @@ exports.default = RegistryHandler;
 
 
 /***/ }),
-/* 53 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7802,13 +5868,13 @@ exports.default = {
 
 
 /***/ }),
-/* 54 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var handleDecorator_1 = __webpack_require__(11);
+var handleDecorator_1 = __webpack_require__(7);
 function afterRender(method) {
     return handleDecorator_1.handleDecorator(function (target, propertyKey) {
         target.addDecorator('afterRender', propertyKey ? target[propertyKey] : method);
@@ -7819,13 +5885,13 @@ exports.default = afterRender;
 
 
 /***/ }),
-/* 55 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var handleDecorator_1 = __webpack_require__(11);
+var handleDecorator_1 = __webpack_require__(7);
 function beforeProperties(method) {
     return handleDecorator_1.handleDecorator(function (target, propertyKey) {
         target.addDecorator('beforeProperties', propertyKey ? target[propertyKey] : method);
@@ -7836,13 +5902,13 @@ exports.default = beforeProperties;
 
 
 /***/ }),
-/* 56 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var handleDecorator_1 = __webpack_require__(11);
+var handleDecorator_1 = __webpack_require__(7);
 /**
  * Decorator that can be used to register a function as a specific property diff
  *
@@ -7867,7 +5933,7 @@ exports.default = diffProperty;
 
 
 /***/ }),
-/* 57 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __extends = (this && this.__extends) || (function () {
@@ -7894,12 +5960,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var lang_1 = __webpack_require__(5);
 var global_1 = __webpack_require__(0);
 var lang_2 = __webpack_require__(5);
-var Evented_1 = __webpack_require__(2);
-var maquette_1 = __webpack_require__(23);
-var cssTransitions_1 = __webpack_require__(53);
-var afterRender_1 = __webpack_require__(54);
-var d_1 = __webpack_require__(1);
-var eventHandlerInterceptor_1 = __webpack_require__(58);
+var Evented_1 = __webpack_require__(3);
+var maquette_1 = __webpack_require__(16);
+var cssTransitions_1 = __webpack_require__(38);
+var afterRender_1 = __webpack_require__(39);
+var d_1 = __webpack_require__(8);
+var eventHandlerInterceptor_1 = __webpack_require__(43);
 /**
  * Represents the attach state of the projector
  */
@@ -8167,13 +6233,13 @@ exports.default = ProjectorMixin;
 
 
 /***/ }),
-/* 58 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var array_1 = __webpack_require__(18);
+var array_1 = __webpack_require__(19);
 exports.eventHandlers = [
     'onblur',
     'onchange',
@@ -8223,7 +6289,7 @@ exports.default = eventHandlerInterceptor;
 
 
 /***/ }),
-/* 59 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var apply = Function.prototype.apply;
@@ -8276,13 +6342,13 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(36);
+__webpack_require__(27);
 exports.setImmediate = setImmediate;
 exports.clearImmediate = clearImmediate;
 
 
 /***/ }),
-/* 60 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __extends = (this && this.__extends) || (function () {
@@ -8381,13 +6447,13 @@ exports.Context = Context;
 
 
 /***/ }),
-/* 61 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Container_1 = __webpack_require__(50);
+var Container_1 = __webpack_require__(35);
 function getProperties(context, properties) {
     var _a = properties.category, category = _a === void 0 ? 'top' : _a;
     if (category !== context.category) {
@@ -8401,46 +6467,7 @@ exports.ContentContainer = Container_1.Container('content', 'state', { getProper
 
 
 /***/ }),
-/* 62 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Outlet_1 = __webpack_require__(28);
-var ContentContainer_1 = __webpack_require__(61);
-exports.ContentOutlet = Outlet_1.Outlet(ContentContainer_1.ContentContainer, 'menu', function (_a) {
-    var params = _a.params;
-    return { category: params.category };
-});
-exports.default = exports.ContentOutlet;
-
-
-/***/ }),
-/* 63 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Outlet_1 = __webpack_require__(28);
-var Menu_1 = __webpack_require__(66);
-exports.MenuOutlet = Outlet_1.Outlet(Menu_1.Menu, 'menu', function (_a) {
-    var params = _a.params;
-    return { category: params.category };
-});
-exports.DefaultMenuOutlet = Outlet_1.Outlet({ index: Menu_1.Menu }, 'user', function (_a) {
-    var params = _a.params;
-    return { category: params.category };
-});
-exports.OtherMenuOutlet = Outlet_1.Outlet({ index: Menu_1.Menu }, 'home', function () {
-    return { category: 'top' };
-});
-exports.default = exports.MenuOutlet;
-
-
-/***/ }),
-/* 64 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8487,7 +6514,7 @@ exports.unregister = unregister;
 
 
 /***/ }),
-/* 65 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __extends = (this && this.__extends) || (function () {
@@ -8502,10 +6529,12 @@ var __extends = (this && this.__extends) || (function () {
 })();
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var WidgetBase_1 = __webpack_require__(7);
-var d_1 = __webpack_require__(1);
-var MenuOutlet_1 = __webpack_require__(63);
-var ContentOutlet_1 = __webpack_require__(62);
+var WidgetBase_1 = __webpack_require__(11);
+var d_1 = __webpack_require__(8);
+// import { MenuOutlet, DefaultMenuOutlet, OtherMenuOutlet } from './../outlets/MenuOutlet';
+// import { ContentOutlet } from './../outlets/ContentOutlet';
+var Menu_1 = __webpack_require__(49);
+var ContentContainer_1 = __webpack_require__(46);
 var App = (function (_super) {
     __extends(App, _super);
     function App() {
@@ -8513,10 +6542,8 @@ var App = (function (_super) {
     }
     App.prototype.render = function () {
         return d_1.v('div', [
-            d_1.w(MenuOutlet_1.MenuOutlet, {}),
-            d_1.w(MenuOutlet_1.DefaultMenuOutlet, {}),
-            d_1.w(MenuOutlet_1.OtherMenuOutlet, {}),
-            d_1.w(ContentOutlet_1.ContentOutlet, {})
+            d_1.w(Menu_1.Menu, {}),
+            d_1.w(ContentContainer_1.ContentContainer, {})
         ]);
     };
     return App;
@@ -8525,7 +6552,7 @@ exports.App = App;
 
 
 /***/ }),
-/* 66 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __extends = (this && this.__extends) || (function () {
@@ -8546,32 +6573,32 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var WidgetBase_1 = __webpack_require__(7);
-var d_1 = __webpack_require__(1);
-var Themeable_1 = __webpack_require__(22);
-var Link_1 = __webpack_require__(27);
-var MenuItem_1 = __webpack_require__(67);
-var css = __webpack_require__(34);
-var categories = ['top', 'new', 'show', 'ask', 'jobs'];
+var WidgetBase_1 = __webpack_require__(11);
+// import { v, w } from '@dojo/widget-core/d';
+var Themeable_1 = __webpack_require__(25);
+// import { Link } from '@dojo/routing/Link';
+// import { MenuItem } from './MenuItem';
+var css = __webpack_require__(26);
 var Menu = (function (_super) {
     __extends(Menu, _super);
     function Menu() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     Menu.prototype.render = function () {
-        var _a = this.properties.category, category = _a === void 0 ? '' : _a;
-        return d_1.v('nav', { classes: this.classes(css.root) }, [
-            d_1.w(Link_1.Link, { to: 'menu', params: { category: 'top' }, classes: this.classes(css.home) }, [
-                d_1.v('img', { classes: this.classes(css.logo), src: './img/logo2.svg' })
-            ]),
-            d_1.v('ol', { classes: this.classes(css.menuContainer) }, categories.map(function (cat) {
-                return d_1.w(MenuItem_1.MenuItem, {
-                    key: cat,
-                    selected: cat === category,
-                    cat: cat
-                }, [cat]);
-            }).slice())
-        ]);
+        // const {category = '' } = this.properties;
+        // return v('nav', { classes: this.classes(css.root) }, [
+        // 	w(Link, { to: 'menu', params: { category: 'top' }, classes: this.classes(css.home) }, [
+        // 		v('img', { classes: this.classes(css.logo), src: './img/logo2.svg' })
+        // 	]),
+        // 	v('ol', { classes: this.classes(css.menuContainer) }, [ ...categories.map((cat) => {
+        // 		return w(MenuItem, {
+        // 			key: cat,
+        // 			selected: cat === category,
+        // 			cat
+        // 		}, [ cat ])
+        // 	})])
+        // ]);
+        return null;
     };
     Menu = __decorate([
         Themeable_1.theme(css)
@@ -8582,61 +6609,11 @@ exports.Menu = Menu;
 
 
 /***/ }),
-/* 67 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var WidgetBase_1 = __webpack_require__(7);
-var d_1 = __webpack_require__(1);
-var Themeable_1 = __webpack_require__(22);
-var Link_1 = __webpack_require__(27);
-var css = __webpack_require__(35);
-var MenuItem = (function (_super) {
-    __extends(MenuItem, _super);
-    function MenuItem() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    MenuItem.prototype.render = function () {
-        var selected = this.properties.selected;
-        return d_1.v('li', { classes: this.classes(css.root) }, [
-            d_1.w(Link_1.Link, {
-                to: 'menu',
-                params: { category: this.properties.cat },
-                classes: this.classes(css.item, selected ? css.selected : null)
-            }, this.children)
-        ]);
-    };
-    MenuItem = __decorate([
-        Themeable_1.theme(css)
-    ], MenuItem);
-    return MenuItem;
-}(Themeable_1.ThemeableMixin(WidgetBase_1.WidgetBase)));
-exports.MenuItem = MenuItem;
-
-
-/***/ }),
-/* 68 */
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__(32);
-module.exports = __webpack_require__(33);
+__webpack_require__(23);
+module.exports = __webpack_require__(24);
 
 
 /***/ })
