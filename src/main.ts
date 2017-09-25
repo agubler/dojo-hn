@@ -14,7 +14,9 @@ registry.define('content', () => {
 
 const Projector = ProjectorMixin(App);
 const projector = new Projector();
-projector.setProperties({ registry });
-
+fetch('https://api.hackerwebapp.com/news?page=1').then((response) => response.json().then((data) => {
+    projector.setProperties({ registry, data })
+}));
 projector.append();
+projector.setProperties({ registry });
 register();

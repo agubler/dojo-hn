@@ -9,7 +9,6 @@ interface ContentProperties {
 	data: any[];
 }
 
-
 @theme(css)
 export class Content extends ThemeableMixin(WidgetBase)<ContentProperties> {
 
@@ -19,5 +18,4 @@ export class Content extends ThemeableMixin(WidgetBase)<ContentProperties> {
 			return w(Article, { key: index, index, item, pageNumber: 1 });
 		}))
 	}
-
 }
