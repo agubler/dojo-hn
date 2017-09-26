@@ -19,7 +19,7 @@ export class Menu extends ThemeableMixin(WidgetBase)<MenuProperties> {
 
 		return v('nav', { classes: this.classes(css.root) }, [
 			w(Link, { to: 'content', params: { category: 'top', page: 1  }, classes: this.classes(css.home) }, [
-				v('img', { classes: this.classes(css.logo), src: './img/logo2.svg' })
+				v('img', { classes: this.classes(css.logo), src: './img/logo.svg' })
 			]),
 			v('ol', { classes: this.classes(css.menuContainer) }, [ ...categories.map((category) => {
 				return w(MenuItem, {

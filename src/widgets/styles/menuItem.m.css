@@ -28,5 +28,5 @@
 }
 
 .selected::after {
-    transform: translateY(0);
+	transform: translateY(0);
 }
