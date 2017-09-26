@@ -50,13 +50,13 @@ export class Article extends ThemeableMixin(WidgetBase)<ArticleProperties> {
 				v('a', { href: article.url, target: 'none', classes: this.classes(css.title) }, [ article.title ])
 			]),
 			v('p', { classes: this.classes(css.details) }, [
-				article.loading ? null : `${article.points || 0} points`,
+				article.loading ? null : `${article.points || 0} points ${article.user ? 'by ' : ''}`,
 				w(Link, { key: 'user', to: 'user', params: { user: article.user || '' }, classes: this.classes(css.link) }, [
-					article.loading ? null : ` by ${article.user}`
+					article.loading ? null : article.user
 				]),
-				article.loading ? null : ` ${article.time_ago}`,
+				article.loading ? null : ` ${article.time_ago} `,
 				w(Link, { key: 'comments', to: 'comments', params: { id: `${article.id}` }, classes: this.classes(css.link) }, [
-					article.loading ? null : article.comments_count === 0 ? 'discuss' : ` ${article.comments_count} comments`
+					article.loading ? null : article.comments_count === 0 ? 'discuss' : `${article.comments_count} comments`
 				])
 			])
 		];
