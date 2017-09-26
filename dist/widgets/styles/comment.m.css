@@ -9,16 +9,16 @@
 .user {
 	color: #666;
 	cursor: pointer;
-    text-decoration: underline;
+	text-decoration: underline;
 }
 
 .time {
 	padding-left: 8px;
-    font-size: 13px;
+	font-size: 13px;
 }
 
 .comment {
 	border-bottom: 1px solid #ececec;
 	padding-bottom: 16px;
-    margin-bottom: 16px;
+	margin-bottom: 16px;
 }
