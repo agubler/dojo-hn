@@ -8,25 +8,25 @@ import * as css from './styles/menu.m.css';
 
 const categories = [ 'top', 'new', 'show', 'ask', 'jobs' ];
 
-interface MenuProperties {
-	category?: string;
+export interface MenuProperties {
+	currentCategory?: string;
 }
 
 @theme(css)
 export class Menu extends ThemeableMixin(WidgetBase)<MenuProperties> {
 	render() {
-		const {category = '' } = this.properties;
+		const {currentCategory = '' } = this.properties;
 
 		return v('nav', { classes: this.classes(css.root) }, [
-			w(Link, { to: 'menu', params: { category: 'top' }, classes: this.classes(css.home) }, [
+			w(Link, { to: 'content', params: { category: 'top', page: 1  }, classes: this.classes(css.home) }, [
 				v('img', { classes: this.classes(css.logo), src: './img/logo2.svg' })
 			]),
-			v('ol', { classes: this.classes(css.menuContainer) }, [ ...categories.map((cat) => {
+			v('ol', { classes: this.classes(css.menuContainer) }, [ ...categories.map((category) => {
 				return w(MenuItem, {
-					key: cat,
-					selected: cat === category,
-					cat
-				}, [ cat ])
+					key: category,
+					selected: category === currentCategory,
+					category
+				}, [ category ]);
 			})])
 		]);
 	}

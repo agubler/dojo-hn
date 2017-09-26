@@ -7,9 +7,7 @@
     "@dojo/i18n": "next",
     "@dojo/routing": "file:deps/dojo-routing-2.0.0-alpha.1.tgz",
     "@dojo/shim": "next",
-    "@dojo/widget-core": "next",
-    "le-store": "0.0.1",
-    "sw-precache-webpack-plugin": "^0.11.4"
+    "@dojo/widget-core": "next"
   },
   "devDependencies": {
     "@dojo/cli-build-webpack": "file:deps/dojo-cli-build-webpack-2.0.0-alpha.1.tgz",

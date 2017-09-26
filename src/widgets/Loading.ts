@@ -7,9 +7,6 @@ import * as css from './styles/loading.m.css';
 @theme(css)
 export class Loading extends ThemeableMixin(WidgetBase) {
 	render() {
-		return v('div', { classes: this.classes(css.spinner) }, [
-			v('div', { classes: this.classes(css.dot1) }),
-			v('div', { classes: this.classes(css.dot2) })
-		]);
+		return v('div', { key: this.properties.key, classes: this.classes(css.spinner) });
 	}
 }

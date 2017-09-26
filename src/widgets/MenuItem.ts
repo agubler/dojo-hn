@@ -7,8 +7,7 @@ import * as css from './styles/menuItem.m.css';
 
 export interface MenuItemProperties {
 	selected: boolean;
-	cat: string;
-	imgUrl?: string;
+	category: string;
 }
 
 @theme(css)
@@ -19,8 +18,8 @@ export class MenuItem extends ThemeableMixin(WidgetBase)<MenuItemProperties> {
 
 		return v('li', { classes: this.classes(css.root) }, [
 			w(Link, {
-				to: 'menu',
-				params: { category: this.properties.cat },
+				to: 'content',
+				params: { category: this.properties.category, page: '1' },
 				classes: this.classes(css.item, selected ? css.selected : null)
 			}, this.children)
 		]);

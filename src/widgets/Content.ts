@@ -1,21 +1,38 @@
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
-import { v, w } from '@dojo/widget-core/d';
+import { w } from '@dojo/widget-core/d';
+import { DNode } from '@dojo/widget-core/interfaces';
 import { theme, ThemeableMixin } from '@dojo/widget-core/mixins/Themeable';
+import { Link } from '@dojo/routing/Link';
 
 import { Article } from './Article';
 import * as css from './styles/content.m.css';
 
-interface ContentProperties {
+export interface ContentProperties {
 	data: any[];
+	category: string;
+	pageNumber: number;
 }
 
 @theme(css)
 export class Content extends ThemeableMixin(WidgetBase)<ContentProperties> {
 
 	render() {
-		const { data } = this.properties;
-		return v('main', { classes: this.classes(css.root) }, data.map((item, index) => {
-			return w(Article, { key: index, index, item, pageNumber: 1 });
-		}))
+		const { data, pageNumber, category } = this.properties;
+		const articles: DNode[] = data.map((item, index) => {
+			return w(Article, { key: index, index, item, pageNumber });
+		});
+
+		articles.push(
+			w(Link, {
+				to: 'content',
+				params: {
+					category,
+					page: `${pageNumber + 1}`
+				},
+				classes: this.classes(css.more)
+			}, [ 'More...' ])
+		);
+
+		return articles;
 	}
 }

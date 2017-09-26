@@ -1,17 +1,18 @@
 import { Container } from '@dojo/widget-core/Container';
 
-import { Content } from './../widgets/Content';
+import { Context } from './../Context';
+import { Content, ContentProperties } from './../widgets/Content';
 
-function getProperties(context: any, properties: any) {
-	const { category = 'top' } = properties;
-	if (category !== context.category) {
-		context.fetchStories(category);
+function getProperties(context: Context, properties: ContentProperties) {
+	const { category = 'top', pageNumber = 1 } = properties;
+	if (category !== context.category || pageNumber !== context.page) {
+		context.fetchStories(category, pageNumber);
 	}
 
 	return {
-		data: context.data
+		data: context.data,
+		pageNumber: context.page
 	};
-
 }
 
-export const ContentContainer = Container<Content>('content', 'state', { getProperties });
+export const ContentContainer = Container(Content, 'state', { getProperties });

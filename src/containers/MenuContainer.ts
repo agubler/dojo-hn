@@ -1,10 +1,11 @@
 import { Container } from '@dojo/widget-core/Container';
 
-import { Menu } from './../widgets/Menu';
+import { Context } from './../Context';
+import { Menu, MenuProperties } from './../widgets/Menu';
 
-function getProperties(context: any, properties: any) {
+function getProperties(context: Context, properties: MenuProperties): MenuProperties {
 	return {
-		category: context.category
+		currentCategory: context.category
 	};
 }
 
