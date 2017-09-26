@@ -1,29 +1,33 @@
 .root {
-	padding: 0 1.5rem;
+    margin: 0 auto;
+	max-width: 1200px;
+	margin-top: 48px;
 }
 
-.header {
-	margin: 0 0 1rem;
+.article {
+	margin-bottom: 24px;
+    border-bottom: 32px solid #f3f3f3;
+    padding: 16px 24px 8px;
+}
+
+.title {
+    display: block;
+    text-decoration: none;
+    font-size: 27px;
+    color: #000;
+    margin-bottom: 12px;
 }
 
 .user {
-	color: #666;
-	cursor: pointer;
-    text-decoration: underline;
+    color: #666;
 }
 
-.time {
-	padding-left: .5rem;
-    font-size: .85rem;
+.comments {
+	padding: 0 24px;
 }
 
-.comment {
+.commentCount {
 	border-bottom: 1px solid #ececec;
-	padding-bottom: 1rem;
-	line-height: 1.15;
-    margin-bottom: 1rem;
-}
-
-.child {
-    padding: 0 0 0 1rem;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
 }
