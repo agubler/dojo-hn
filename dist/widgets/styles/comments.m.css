@@ -1,0 +1,29 @@
+.root {
+	padding: 0 1.5rem;
+}
+
+.header {
+	margin: 0 0 1rem;
+}
+
+.user {
+	color: #666;
+	cursor: pointer;
+    text-decoration: underline;
+}
+
+.time {
+	padding-left: .5rem;
+    font-size: .85rem;
+}
+
+.comment {
+	border-bottom: 1px solid #ececec;
+	padding-bottom: 1rem;
+	line-height: 1.15;
+    margin-bottom: 1rem;
+}
+
+.child {
+    padding: 0 0 0 1rem;
+}
