@@ -24,11 +24,13 @@
 .details {
 	color: #666;
 	font-size: 12px;
+	height: 15px;
 }
 
 .link {
 	text-decoration: underline;
 	cursor: pointer;
+	color: #666;
 }
 
 .comments {
