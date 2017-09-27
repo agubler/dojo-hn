@@ -1,0 +1,28 @@
+{
+  "icons": [
+    {
+      "src": "icon_512x512.7a9c155fdde6e21e68fa43f27de2c7b6.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon_256x256.ca6b5957a7b2d2279706e56744a2c6f7.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "icon_128x128.81b55e5c751833977333475052461356.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    }
+  ],
+  "name": "dojo-2-hn",
+  "orientation": "portrait",
+  "display": "standalone",
+  "start_url": ".",
+  "publicPath": null,
+  "short_name": "dojo-2-hn",
+  "description": "dojo-2-hn",
+  "background_color": "#ffffff",
+  "theme_color": "#222127"
+}
