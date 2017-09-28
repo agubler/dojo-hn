@@ -27,6 +27,7 @@ export class Content extends ThemeableMixin(WidgetBase)<ContentProperties> {
 
 		const pagination = v('div', { classes: this.classes(css.pagination) }, [
 			pageNumber > 1 ? w(Link, {
+				key: 'prev',
 				to: 'content',
 				params: {
 					category,
@@ -36,6 +37,7 @@ export class Content extends ThemeableMixin(WidgetBase)<ContentProperties> {
 			}, [ '< prev' ]) : v('span', { classes: this.classes(css.disabled) } , [ '< prev' ]),
 			v('span', { classes: this.classes(css.pageNumber) }, [ `${pageNumber}` ]),
 			articles.length === 30 ? w(Link, {
+				key: 'next',
 				to: 'content',
 				params: {
 					category,
