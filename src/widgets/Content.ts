@@ -1,5 +1,5 @@
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
-import { w } from '@dojo/widget-core/d';
+import { w, v } from '@dojo/widget-core/d';
 import { DNode } from '@dojo/widget-core/interfaces';
 import { theme, ThemeableMixin } from '@dojo/widget-core/mixins/Themeable';
 import { Link } from '@dojo/routing/Link';
@@ -25,19 +25,26 @@ export class Content extends ThemeableMixin(WidgetBase)<ContentProperties> {
 			articlesNodes.push(w(Article, { key: index, index, item: articles[index], pageNumber }));
 		}
 
-		if (articles.length === 30) {
-			articlesNodes.push(
-				w(Link, {
-					to: 'content',
-					params: {
-						category,
-						page: `${pageNumber + 1}`
-					},
-					classes: this.classes(css.more)
-				}, [ 'More...' ])
-			);
-		}
+		const pagination = v('div', { classes: this.classes(css.pagination) }, [
+			pageNumber > 1 ? w(Link, {
+				to: 'content',
+				params: {
+					category,
+					page: `${pageNumber - 1}`
+				},
+				classes: this.classes(css.pageLink)
+			}, [ '< prev' ]) : v('span', { classes: this.classes(css.disabled) } , [ '< prev' ]),
+			v('span', { classes: this.classes(css.pageNumber) }, [ `${pageNumber}` ]),
+			articles.length === 30 ? w(Link, {
+				to: 'content',
+				params: {
+					category,
+					page: `${pageNumber + 1}`
+				},
+				classes: this.classes(css.pageLink)
+			}, [ 'next >' ]) : v('span', { classes: this.classes(css.disabled) } , [ 'next >' ])
+		]);
 
-		return articlesNodes;
+		return [ pagination, ...articlesNodes];
 	}
 }
