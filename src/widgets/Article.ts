@@ -1,65 +1,63 @@
-import { WidgetBase } from '@dojo/widget-core/WidgetBase';
+import { Link } from '@dojo/routing/Link';
 import { v, w } from '@dojo/widget-core/d';
 import { theme, ThemeableMixin } from '@dojo/widget-core/mixins/Themeable';
-import { Link } from '@dojo/routing/Link';
+import { WidgetBase } from '@dojo/widget-core/WidgetBase';
+
+import { ArticleItem } from './../interfaces';
 
 import * as css from './styles/article.m.css';
 
-export interface ArticleItem {
-	id: number | null;
-	title: string;
-	user: string | null;
-	url: string;
-	points: string | null;
-	time_ago: string;
-	comments_count: number;
-	loading: boolean;
-}
-
-export interface Loading {
-	loading: boolean;
-}
-
-interface ArticleProperties {
-	item: ArticleItem | Loading;
+export interface ArticleProperties {
+	item?: ArticleItem;
 	index: number;
 	pageNumber: number;
 }
 
-function isLoading(value?: any): value is Loading {
-	return Boolean(value && value.loading);
-}
-
-const loadingItem: ArticleItem = {
-	id: 0,
-	title: 'Loading...',
-	user: '',
-	url: '',
-	points: '',
-	time_ago: '',
-	comments_count: 0,
-	loading: true
-};
-
 @theme(css)
 export class Article extends ThemeableMixin(WidgetBase)<ArticleProperties> {
 
-	private _renderArticle(article: ArticleItem) {
+	private _articleShell() {
+		const properties = { classes: { a: false } };
 		return [
 			v('h2', [
-				v('a', { href: article.url, target: 'none', classes: this.classes(css.title) }, [ article.title ])
+				v('a', properties, [ 'Loading...' ])
+			]),
+			v('p', properties, [ v('span'), v('a'), v('span'), v('a') ])
+		];
+	}
+
+	private _renderArticle(article: ArticleItem) {
+		const { url, title, points, user, id, comments_count, time_ago } = article;
+		const commentText = comments_count === 0 ? 'discuss' : `${comments_count} comments`;
+
+		return [
+			v('h2', [
+				v('a', {
+					href: url,
+					target: 'none',
+					classes: this.classes(css.title)
+				}, [ title ])
 			]),
 			v('p', { classes: this.classes(css.details) }, [
-				article.loading ? null : `${article.points || 0} points ${article.user ? 'by ' : ''}`,
-				w(Link, { key: 'user', to: 'user', params: { user: article.user || '' }, classes: this.classes(css.link) }, [
-					article.loading ? null : article.user
-				]),
-				article.loading ? null : ` ${article.time_ago} `,
-				w(Link, { key: 'comments', to: 'comments', params: { id: `${article.id}` }, classes: this.classes(css.link) }, [
-					article.loading ? null : article.comments_count === 0 ? 'discuss' : `${article.comments_count} comments`
-				])
+				v('span', [ `${points || 0} points ${user ? 'by ' : ''}` ]),
+				user ? w(Link, {
+					key: 'user',
+					to: 'user',
+					params: { user },
+					classes: this.classes(css.link)
+				}, [
+					user
+				]) : null,
+				v('span', [ ` ${time_ago} ` ]),
+				w(Link, {
+					key: 'comments',
+					to: 'comments',
+					params: { id: `${id}` },
+					classes: this.classes(css.link)
+				}, [ commentText ])
 			])
 		];
+
 	}
 
 	protected render() {
@@ -71,7 +69,7 @@ export class Article extends ThemeableMixin(WidgetBase)<ArticleProperties> {
 			v('div', {
 				key: index,
 				classes: this.classes(css.post)
-			}, isLoading(item) ? this._renderArticle(loadingItem) : this._renderArticle(item))
+			}, item ? this._renderArticle(item) : this._articleShell())
 		]);
 	}
 

@@ -3,31 +3,32 @@ import { v, w } from '@dojo/widget-core/d';
 import { theme, ThemeableMixin } from '@dojo/widget-core/mixins/Themeable';
 import { Link } from '@dojo/routing/Link';
 
+import { CommentItem } from './../interfaces';
 import * as css from './styles/comment.m.css';
 
-interface CommentProperties {
-	comment: any;
+export interface CommentProperties {
+	comment: CommentItem;
 }
 
 @theme(css)
 export class Comment extends ThemeableMixin(WidgetBase)<CommentProperties> {
 
-	render() {
-		const { comment } = this.properties;
+	protected render() {
+		const { comment: { user, content, time_ago, comments = [] } } = this.properties;
 		return v('div', { classes: this.classes(css.root) }, [
 			v('header', { classes: this.classes(css.padding) }, [
-				w(Link, {
+				user ? w(Link, {
 					to: 'user',
 					params: {
-						user: comment.user || ''
+						user
 					},
 					classes: this.classes(css.user)
-				}, [ comment.user ]),
-				v('span', { classes: this.classes(css.time) }, [ comment.time_ago ])
+				}, [ user ]) : null,
+				v('span', { classes: this.classes(css.time) }, [ time_ago ])
 			]),
-			v('div', { innerHTML: comment.content, classes: this.classes(css.comment) }),
-			v('div', { classes: this.classes(css.padding) }, comment.comments.map((comment: any, index: any) => {
-				return w(Comment, { comment, key: index});
+			v('div', { innerHTML: content, classes: this.classes(css.comment) }),
+			v('div', { classes: this.classes(css.padding) }, comments.map((comment, index) => {
+				return w(Comment, { comment, key: index });
 			}))
 		]);
 	}
