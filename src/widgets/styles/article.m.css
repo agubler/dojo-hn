@@ -16,9 +16,10 @@
 
 .post {
 	display: block;
+	width: 100%;
 }
 
-.title {
+.title a {
 	display: block;
 	margin-bottom: 8px;
 	text-decoration: none;
@@ -40,4 +41,22 @@
 .comments {
 	padding-left: 8px;
 	border-left: 1px solid #ccc;
+}
+
+.titleShell {
+	background: #f6f7f9;
+	width: 100%;
+	max-width: 650px;
+	height: 21px;
+	margin-bottom: 6px;
+	margin-right: 16px;
+}
+
+.subtitleShell {
+	background: #f6f7f9;
+	width: 60%;
+	max-width: 350px;
+	height: 15px;
+	padding-bottom: 2px;
+	margin-right: 16px;
 }

@@ -17,12 +17,9 @@ export interface ArticleProperties {
 export class Article extends ThemeableMixin(WidgetBase)<ArticleProperties> {
 
 	private _articleShell() {
-		const properties = { classes: { a: false } };
 		return [
-			v('h2', [
-				v('a', properties, [ 'Loading...' ])
-			]),
-			v('p', properties, [ v('span'), v('a'), v('span'), v('a') ])
+			v('h2', { classes: this.classes(css.titleShell) } ),
+			v('p', { classes: this.classes(css.subtitleShell) })
 		];
 	}
 
@@ -31,11 +28,10 @@ export class Article extends ThemeableMixin(WidgetBase)<ArticleProperties> {
 		const commentText = comments_count === 0 ? 'discuss' : `${comments_count} comments`;
 
 		return [
-			v('h2', [
+			v('h2', { classes: this.classes(css.title) }, [
 				v('a', {
 					href: url,
-					target: 'none',
-					classes: this.classes(css.title)
+					target: 'none'
 				}, [ title ])
 			]),
 			v('p', { classes: this.classes(css.details) }, [

@@ -5,3 +5,5 @@ export const title: string;
 export const details: string;
 export const link: string;
 export const comments: string;
+export const titleShell: string;
+export const subtitleShell: string;
