@@ -17,8 +17,8 @@ export class Article extends WidgetBase<ArticleProperties> {
 	private _articleShell() {
 		const percent = Math.floor(Math.random() * 20 + 80);
 		return [
-			v('h2', { styles: { width: `${percent}%` }, classes: [ css.titleShell, css.animatedTitle ] } ),
-			v('p', { classes: [ css.subtitleShell, css.animatedSubTitle ] })
+			v('h2', { styles: { width: `${percent}%` }, classes: [ css.titleShell, css.animated, css.animatedTitle ] } ),
+			v('p', { classes: [ css.subtitleShell, css.animated, css.animatedSubTitle ] })
 		];
 	}
 

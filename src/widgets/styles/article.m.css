@@ -45,39 +45,34 @@
 }
 
 @keyframes placeHolderShimmer{
-    0%{
-        background-position: -468px 0
-    }
-    100%{
-        background-position: 468px 0
-    }
+	0%{
+		background-position: -468px 0
+	}
+	100%{
+		background-position: 468px 0
+	}
+}
+
+.animated {
+	animation-duration: 2s;
+	animation-fill-mode: forwards;
+	animation-iteration-count: infinite;
+	animation-name: placeHolderShimmer;
+	animation-timing-function: linear;
+	background-size: 800px 104px;
+	height: 96px;
+	position: relative;
 }
 
 .animatedTitle {
-    animation-duration: 2s;
-    animation-fill-mode: forwards;
-    animation-iteration-count: infinite;
-    animation-name: placeHolderShimmer;
-    animation-timing-function: linear;
-    background: #ddd;
-    background: linear-gradient(to right, #ddd 8%, #ccc 18%, #ddd 33%);
-    background-size: 800px 104px;
-    height: 96px;
-    position: relative;
+	background: #ddd;
+	background: linear-gradient(to right, #ddd 8%, #ccc 18%, #ddd 33%);
 }
 
 .animatedSubTitle {
-	animation-duration: 2s;
 	animation-delay: 0.2s;
-    animation-fill-mode: forwards;
-    animation-iteration-count: infinite;
-    animation-name: placeHolderShimmer;
-    animation-timing-function: linear;
-    background: #f6f7f8;
-    background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
-    background-size: 800px 104px;
-    height: 96px;
-    position: relative;
+	background: #f6f7f8;
+	background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
 }
 
 .titleShell {

@@ -8,10 +8,6 @@ import { App } from './widgets/App';
 const registry = new Registry();
 const context = new Context();
 registry.defineInjector('state', context);
-registry.define('comments', async () => {
-	const widget = await import ('./widgets/Comments');
-	return widget.Comments;
-});
 
 const routingConfig = [
 	{
