@@ -4,13 +4,6 @@
 	text-decoration: underline;
 }
 
-.disabled {
-	color: rgba(49, 40, 40, 0.65);
-	text-decoration: underline;
-	cursor: default;
-	user-select: none;
-}
-
 .pagination {
 	text-align: center;
 	position: fixed;

@@ -31,8 +31,17 @@ export class Content extends WidgetBase<ContentProperties> {
 					category,
 					page: `${pageNumber - 1}`
 				},
-				classes: css.pageLink
-			}, [ '< prev' ]) : v('span', { key: 'disabled-prev', classes: css.disabled } , [ '< prev' ]),
+				classes: css.pageLink,
+				styles: {
+					color: '#000'
+				}
+			}, [ '< prev' ]) : v('a', {
+				key: 'disabled-prev',
+				classes: css.pageLink,
+				styles: {
+					color: 'rgba(49, 40, 40, 0.65)'
+				}
+			} , [ '< prev' ]),
 			v('span', { classes: css.pageNumber }, [ `${pageNumber}` ]),
 			articles.length === 30 ? w(Link, {
 				key: 'next',
@@ -41,8 +50,17 @@ export class Content extends WidgetBase<ContentProperties> {
 					category,
 					page: `${pageNumber + 1}`
 				},
-				classes: css.pageLink
-			}, [ 'next >' ]) : v('span', { key: 'disabled-next', classes: css.disabled } , [ 'next >' ])
+				classes: css.pageLink,
+				styles: {
+					color: '#000'
+				}
+			}, [ 'next >' ]) : v('a', {
+				key: 'disabled-next',
+				classes: css.pageLink,
+				styles: {
+					color: 'rgba(49, 40, 40, 0.65)'
+				}
+			} , [ 'next >' ])
 		]);
 
 		return [ pagination, ...articlesNodes];
