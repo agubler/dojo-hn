@@ -17,7 +17,19 @@
 	cursor: pointer;
 }
 
-.logo {
+.logoLoaded {
 	height: 38px;
-	padding: 4px;
+	margin: 4px;
+	animation: fadein 0.5s;
+	width: 148px;
+}
+
+.logo {
+	width: 148px;
+	opacity: 0;
+}
+
+@keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }

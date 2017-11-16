@@ -1,6 +1,5 @@
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
 import { v, w } from '@dojo/widget-core/d';
-import { theme, ThemeableMixin } from '@dojo/widget-core/mixins/Themeable';
 import { Link } from '@dojo/routing/Link';
 
 import { MenuItem } from './MenuItem';
@@ -12,16 +11,23 @@ export interface MenuProperties {
 	currentCategory?: string;
 }
 
-@theme(css)
-export class Menu extends ThemeableMixin(WidgetBase)<MenuProperties> {
+export class Menu extends WidgetBase<MenuProperties> {
+
+	private _logoLoaded = false;
+
+	private _onLogoLoad() {
+		this._logoLoaded = true;
+		this.invalidate();
+	}
+
 	render() {
 		const {currentCategory = '' } = this.properties;
 
-		return v('nav', { classes: this.classes(css.root) }, [
-			w(Link, { to: 'content', params: { category: 'top', page: 1  }, classes: this.classes(css.home) }, [
-				v('img', { classes: this.classes(css.logo), src: './img/logo.svg', alt: 'Home' })
+		return v('nav', { classes: css.root }, [
+			w(Link, { to: 'content', params: { category: 'top', page: 1  }, classes: css.home }, [
+				v('img', { onload: this._onLogoLoad, classes: this._logoLoaded ? css.logoLoaded : css.logo, src: './img/logo.svg', alt: 'Home' })
 			]),
-			v('ol', { classes: this.classes(css.menuContainer) }, [ ...categories.map((category) => {
+			v('ol', { classes: css.menuContainer }, [ ...categories.map((category) => {
 				return w(MenuItem, {
 					key: category,
 					selected: category === currentCategory,

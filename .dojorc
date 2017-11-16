@@ -24,6 +24,19 @@
                     { "method": "get", "path": "/*",  "origin": "https://api.hackerwebapp.com", "strategy": "cacheFirst" }
                 ]
             }
+        },
+        "buildTimeRender": {
+			"root": "app",
+			"paths": [
+				{
+					"path": "#comments/1",
+					"match": [ "#comments\/.*" ]
+				},
+				{
+					"path": "#dummy/1",
+					"match": [ "#[a-zA-Z]+\/\\d+" ]
+				}
+			]
         }
   },
   "test-intern": {

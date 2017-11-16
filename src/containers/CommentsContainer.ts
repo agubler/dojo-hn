@@ -1,7 +1,7 @@
 import { Container } from '@dojo/widget-core/Container';
 
 import { Context } from './../Context';
-import { Comments, CommentsProperties } from './../widgets/Comments';
+import { CommentsProperties } from './../widgets/Comments';
 
 function getProperties(context: Context, properties: CommentsProperties): CommentsProperties {
 	const { id } = properties;
@@ -15,4 +15,4 @@ function getProperties(context: Context, properties: CommentsProperties): Commen
 	};
 }
 
-export const CommentsContainer = Container<Comments>('comments', 'state', { getProperties });
+export const CommentsContainer = Container('comments', 'state', { getProperties });

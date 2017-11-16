@@ -6,7 +6,8 @@ import { Context } from './Context';
 import { App } from './widgets/App';
 
 const registry = new Registry();
-registry.defineInjector('state', new Context({}));
+const context = new Context();
+registry.defineInjector('state', context);
 registry.define('comments', async () => {
 	const widget = await import ('./widgets/Comments');
 	return widget.Comments;
@@ -31,9 +32,10 @@ const routingConfig = [
 		}
 	}
 ];
+
 const router = registerRouterInjector(routingConfig, registry);
+router.start();
 const Projector = ProjectorMixin(App);
 const projector = new Projector();
 projector.setProperties({ registry });
-projector.append();
-router.start();
+projector.merge(document.getElementById('app') || undefined);

@@ -1,6 +1,5 @@
 import { Link } from '@dojo/routing/Link';
 import { v, w } from '@dojo/widget-core/d';
-import { theme, ThemeableMixin } from '@dojo/widget-core/mixins/Themeable';
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
 
 import { ArticleItem } from './../interfaces';
@@ -13,13 +12,13 @@ export interface ArticleProperties {
 	pageNumber: number;
 }
 
-@theme(css)
-export class Article extends ThemeableMixin(WidgetBase)<ArticleProperties> {
+export class Article extends WidgetBase<ArticleProperties> {
 
 	private _articleShell() {
+		const percent = Math.floor(Math.random() * 20 + 80);
 		return [
-			v('h2', { classes: this.classes(css.titleShell) } ),
-			v('p', { classes: this.classes(css.subtitleShell) })
+			v('h2', { styles: { width: `${percent}%` }, classes: [ css.titleShell, css.animatedTitle ] } ),
+			v('p', { classes: [ css.subtitleShell, css.animatedSubTitle ] })
 		];
 	}
 
@@ -28,28 +27,28 @@ export class Article extends ThemeableMixin(WidgetBase)<ArticleProperties> {
 		const commentText = comments_count === 0 ? 'discuss' : `${comments_count} comments`;
 
 		return [
-			v('h2', { classes: this.classes(css.title) }, [
+			v('h2', { classes: css.title, styles: {} }, [
 				v('a', {
 					href: url,
 					target: 'none'
 				}, [ title ])
 			]),
-			v('p', { classes: this.classes(css.details) }, [
-				v('span', [ `${points || 0} points ${user ? 'by ' : ''}` ]),
+			v('p', { classes: css.details }, [
+				v('span', { key: 'points' }, [ `${points || 0} points ${user ? 'by ' : ''}` ]),
 				user ? w(Link, {
 					key: 'user',
 					to: 'user',
 					params: { user },
-					classes: this.classes(css.link)
+					classes: css.link
 				}, [
 					user
 				]) : null,
-				v('span', [ ` ${time_ago} ` ]),
+				v('span', { key: 'time-ago'}, [ ` ${time_ago} ` ]),
 				w(Link, {
 					key: 'comments',
 					to: 'comments',
 					params: { id: `${id}` },
-					classes: this.classes(css.link)
+					classes: css.link
 				}, [ commentText ])
 			])
 		];
@@ -60,11 +59,11 @@ export class Article extends ThemeableMixin(WidgetBase)<ArticleProperties> {
 		const { item, index, pageNumber } = this.properties;
 		const articleNumber = `${(pageNumber - 1) * 30 + index + 1}`;
 
-		return v('article', { classes: this.classes(css.root) }, [
-			v('span', { classes: this.classes(css.pageNumber) }, [ articleNumber ]),
+		return v('article', { classes: css.root }, [
+			v('span', { classes: css.pageNumber }, [ articleNumber ]),
 			v('div', {
 				key: index,
-				classes: this.classes(css.post)
+				classes: css.post
 			}, item ? this._renderArticle(item) : this._articleShell())
 		]);
 	}

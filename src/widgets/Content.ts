@@ -1,7 +1,6 @@
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
 import { w, v } from '@dojo/widget-core/d';
 import { DNode } from '@dojo/widget-core/interfaces';
-import { theme, ThemeableMixin } from '@dojo/widget-core/mixins/Themeable';
 import { Link } from '@dojo/routing/Link';
 
 import { ArticleItem } from './../interfaces';
@@ -14,8 +13,7 @@ export interface ContentProperties {
 	pageNumber: number;
 }
 
-@theme(css)
-export class Content extends ThemeableMixin(WidgetBase)<ContentProperties> {
+export class Content extends WidgetBase<ContentProperties> {
 
 	protected render() {
 		const { articles = [], pageNumber, category } = this.properties;
@@ -25,7 +23,7 @@ export class Content extends ThemeableMixin(WidgetBase)<ContentProperties> {
 			articlesNodes.push(w(Article, { key: index, index, item: articles[index], pageNumber }));
 		}
 
-		const pagination = v('div', { classes: this.classes(css.pagination) }, [
+		const pagination = v('div', { classes: css.pagination }, [
 			pageNumber > 1 ? w(Link, {
 				key: 'prev',
 				to: 'content',
@@ -33,9 +31,9 @@ export class Content extends ThemeableMixin(WidgetBase)<ContentProperties> {
 					category,
 					page: `${pageNumber - 1}`
 				},
-				classes: this.classes(css.pageLink)
-			}, [ '< prev' ]) : v('span', { classes: this.classes(css.disabled) } , [ '< prev' ]),
-			v('span', { classes: this.classes(css.pageNumber) }, [ `${pageNumber}` ]),
+				classes: css.pageLink
+			}, [ '< prev' ]) : v('span', { key: 'disabled-prev', classes: css.disabled } , [ '< prev' ]),
+			v('span', { classes: css.pageNumber }, [ `${pageNumber}` ]),
 			articles.length === 30 ? w(Link, {
 				key: 'next',
 				to: 'content',
@@ -43,8 +41,8 @@ export class Content extends ThemeableMixin(WidgetBase)<ContentProperties> {
 					category,
 					page: `${pageNumber + 1}`
 				},
-				classes: this.classes(css.pageLink)
-			}, [ 'next >' ]) : v('span', { classes: this.classes(css.disabled) } , [ 'next >' ])
+				classes: css.pageLink
+			}, [ 'next >' ]) : v('span', { key: 'disabled-next', classes: css.disabled } , [ 'next >' ])
 		]);
 
 		return [ pagination, ...articlesNodes];

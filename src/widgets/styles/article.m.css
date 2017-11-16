@@ -1,6 +1,7 @@
 .root {
 	display: flex;
 	padding: 8px 16px 8px 0;
+	border-bottom: 1px solid rgba(0,0,0,0.07);
 }
 
 .root:first-of-type {
@@ -43,18 +44,55 @@
 	border-left: 1px solid #ccc;
 }
 
+@keyframes placeHolderShimmer{
+    0%{
+        background-position: -468px 0
+    }
+    100%{
+        background-position: 468px 0
+    }
+}
+
+.animatedTitle {
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
+    animation-name: placeHolderShimmer;
+    animation-timing-function: linear;
+    background: #ddd;
+    background: linear-gradient(to right, #ddd 8%, #ccc 18%, #ddd 33%);
+    background-size: 800px 104px;
+    height: 96px;
+    position: relative;
+}
+
+.animatedSubTitle {
+	animation-duration: 2s;
+	animation-delay: 0.2s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
+    animation-name: placeHolderShimmer;
+    animation-timing-function: linear;
+    background: #f6f7f8;
+    background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
+    background-size: 800px 104px;
+    height: 96px;
+    position: relative;
+}
+
 .titleShell {
-	background: #f6f7f9;
-	width: 100%;
 	max-width: 650px;
+	border-radius: 4px;
 	height: 21px;
 	margin-bottom: 6px;
 	margin-right: 16px;
+	transition: opacity 0.5s;
+	opacity: 1;
 }
 
 .subtitleShell {
-	background: #f6f7f9;
 	width: 60%;
+	border-radius: 4px;
 	max-width: 350px;
 	height: 15px;
 	padding-bottom: 2px;
