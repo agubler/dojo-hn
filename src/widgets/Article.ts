@@ -1,6 +1,7 @@
 import { Link } from '@dojo/routing/Link';
 import { v, w } from '@dojo/widget-core/d';
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
+import { DNode } from '@dojo/widget-core/interfaces';
 
 import { ArticleItem } from './../interfaces';
 
@@ -26,13 +27,23 @@ export class Article extends WidgetBase<ArticleProperties> {
 		const { url, title, points, user, id, comments_count, time_ago } = article;
 		const commentText = comments_count === 0 ? 'discuss' : `${comments_count} comments`;
 
+		let articleLink: DNode;
+
+		if (url.substr(0, 8) === 'item?id=') {
+			articleLink = w(Link, {
+				key: 'article',
+				to: 'comments',
+				params: {
+					id: `${url.substr(8)}`
+				}
+			}, [ title ]);
+		}
+		else {
+			articleLink = v('a', { key: 'article', href: url, target: 'none' }, [ title ]);
+		}
+
 		return [
-			v('h2', { classes: css.title, styles: {} }, [
-				v('a', {
-					href: url,
-					target: 'none'
-				}, [ title ])
-			]),
+			v('h2', { classes: css.title, styles: {} }, [ articleLink ]),
 			v('p', { classes: css.details }, [
 				v('span', { key: 'points' }, [ `${points || 0} points ${user ? 'by ' : ''}` ]),
 				user ? w(Link, {
