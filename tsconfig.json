@@ -19,11 +19,9 @@
 		"removeComments": false,
 		"sourceMap": true,
 		"strict": true,
-		"target": "es5",
-		"types": [ "intern" ]
+		"target": "es5"
 	},
 	"include": [
-		"./src/**/*.ts",
-		"./tests/**/*.ts"
+		"./src/**/*.ts"
 	]
 }
