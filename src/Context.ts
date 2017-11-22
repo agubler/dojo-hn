@@ -18,7 +18,7 @@ export class Context extends Injector {
 		this.articles = undefined;
 		this.emit({ type: 'invalidate' });
 		if (!has('build-time-render')) {
-			this.articles = await fetch(`https://api.hackerwebapp.com/${catKey}?page=${page}`).then(response =>
+			this.articles = await fetch(`/hn/${catKey}?page=${page}`).then(response =>
 				response.json()
 			);
 		}
@@ -31,7 +31,7 @@ export class Context extends Injector {
 		this.route = 'comments';
 		this.emit({ type: 'invalidate' });
 		if (!has('build-time-render')) {
-			this.item = await fetch(`https://api.hackerwebapp.com/item/${id}`).then(response => response.json());
+			this.item = await fetch(`/hn/item/${id}`).then(response => response.json());
 		}
 		this.emit({ type: 'invalidate' });
 	}
