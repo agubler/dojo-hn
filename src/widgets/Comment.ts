@@ -1,7 +1,5 @@
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
 import { v, w } from '@dojo/widget-core/d';
-import { Link } from '@dojo/routing/Link';
-
 import { CommentItem } from './../interfaces';
 import * as css from './styles/comment.m.css';
 
@@ -15,11 +13,9 @@ export class Comment extends WidgetBase<CommentProperties> {
 		const { comment: { user, content, time_ago, comments = [] } } = this.properties;
 		return v('div', { classes: css.root }, [
 			v('header', { classes: css.padding }, [
-				user ? w(Link, {
-					to: 'user',
-					params: {
-						user
-					},
+				user ? v('a', {
+					key: 'user',
+					href: `#/user/${user}`,
 					classes: css.user
 				}, [ user ]) : null,
 				v('span', { classes: css.time }, [ time_ago ])

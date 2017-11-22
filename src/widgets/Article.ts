@@ -1,10 +1,6 @@
-import { Link } from '@dojo/routing/Link';
-import { v, w } from '@dojo/widget-core/d';
+import { v } from '@dojo/widget-core/d';
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
-import { DNode } from '@dojo/widget-core/interfaces';
-
 import { ArticleItem } from './../interfaces';
-
 import * as css from './styles/article.m.css';
 
 export interface ArticleProperties {
@@ -27,38 +23,28 @@ export class Article extends WidgetBase<ArticleProperties> {
 		const { url, title, points, user, id, comments_count, time_ago } = article;
 		const commentText = comments_count === 0 ? 'discuss' : `${comments_count} comments`;
 
-		let articleLink: DNode;
-
-		if (url.substr(0, 8) === 'item?id=') {
-			articleLink = w(Link, {
-				key: 'article',
-				to: 'comments',
-				params: {
-					id: `${url.substr(8)}`
-				}
-			}, [ title ]);
-		}
-		else {
-			articleLink = v('a', { key: 'article', href: url, target: 'none' }, [ title ]);
-		}
+		const isComment = url.substr(0, 8) === 'item?id=';
+		const articleLink = v('a', {
+			key: 'article',
+			href: isComment ? `#/comments/${url.substr(8)}` : url,
+			target: isComment ? undefined : 'none'
+		}, [ title ]);
 
 		return [
 			v('h2', { classes: css.title, styles: {} }, [ articleLink ]),
 			v('p', { classes: css.details }, [
 				v('span', { key: 'points' }, [ `${points || 0} points ${user ? 'by ' : ''}` ]),
-				user ? w(Link, {
+				user ? v('a', {
 					key: 'user',
-					to: 'user',
-					params: { user },
+					href: `#/user/${user}`,
 					classes: css.link
 				}, [
 					user
 				]) : null,
 				v('span', { key: 'time-ago'}, [ ` ${time_ago} ` ]),
-				w(Link, {
+				v('a', {
 					key: 'comments',
-					to: 'comments',
-					params: { id: `${id}` },
+					href: `#/comments/${id}`,
 					classes: css.link
 				}, [ commentText ])
 			])

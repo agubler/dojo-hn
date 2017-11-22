@@ -21,7 +21,7 @@
                     "optional": [ ":rest:" ]
                 },
                 "request": [
-                    { "method": "get", "path": "/*",  "origin": "https://api.hackerwebapp.com", "strategy": "cacheFirst" }
+                    { "method": "get", "path": "/*",  "origin": "https://fierce-mountain-33659.herokuapp.com", "strategy": "cacheFirst" }
                 ]
             }
         },
@@ -29,7 +29,7 @@
 			"root": "app",
 			"paths": [
 				{
-					"path": "#comments/1",
+					"path": "#comments/9999",
 					"match": [ "#comments\/.*" ]
 				},
 				{

@@ -1,6 +1,5 @@
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
-import { v, w } from '@dojo/widget-core/d';
-import { Link } from '@dojo/routing/Link';
+import { v } from '@dojo/widget-core/d';
 
 import * as css from './styles/menuItem.m.css';
 
@@ -12,12 +11,11 @@ export interface MenuItemProperties {
 export class MenuItem extends WidgetBase<MenuItemProperties> {
 
 	render() {
-		const { selected } = this.properties;
+		const { selected, category } = this.properties;
 
 		return v('li', { classes: css.root }, [
-			w(Link, {
-				to: 'content',
-				params: { category: this.properties.category, page: '1' },
+			v('a', {
+				href: `#/${category}/1`,
 				classes: [ css.item, selected ? css.selected : null ]
 			}, this.children)
 		]);

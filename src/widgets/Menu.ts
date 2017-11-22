@@ -1,6 +1,5 @@
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
 import { v, w } from '@dojo/widget-core/d';
-import { Link } from '@dojo/routing/Link';
 
 import { MenuItem } from './MenuItem';
 import * as css from './styles/menu.m.css';
@@ -21,19 +20,19 @@ export class Menu extends WidgetBase<MenuProperties> {
 	}
 
 	render() {
-		const {currentCategory = '' } = this.properties;
+		const { currentCategory = '' } = this.properties;
 
 		return v('nav', { classes: css.root }, [
-			w(Link, { to: 'content', params: { category: 'top', page: 1  }, classes: css.home }, [
+			v('a', { href: '#/top/1', classes: css.home }, [
 				v('img', { onload: this._onLogoLoad, classes: this._logoLoaded ? css.logoLoaded : css.logo, src: './img/logo.svg', alt: 'Home' })
 			]),
-			v('ol', { classes: css.menuContainer }, [ ...categories.map((category) => {
+			v('ol', { classes: css.menuContainer }, categories.map((category) => {
 				return w(MenuItem, {
 					key: category,
 					selected: category === currentCategory,
 					category
 				}, [ category ]);
-			})])
+			}))
 		]);
 	}
 }

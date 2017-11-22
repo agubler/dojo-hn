@@ -2,13 +2,7 @@
   "name": "hnpwa",
   "version": "1.0.0",
   "dependencies": {
-    "@dojo/core": "0.2.1",
-    "@dojo/has": "0.1.0",
-    "@dojo/i18n": "0.2.0",
-    "@dojo/routing": "0.1.0",
-    "@dojo/shim": "0.2.2",
-    "@dojo/widget-core": "0.3.0",
-    "node-fetch": "^1.7.3"
+    "@dojo/widget-core": "file:deps/dojo-widget-core-0.3.1-rc.1.tgz"
   },
   "devDependencies": {
     "@dojo/cli-build-webpack": "file:deps/dojo-cli-build-webpack.tgz",
