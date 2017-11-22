@@ -9,22 +9,20 @@ const context = new Context({});
 registry.defineInjector('state', context);
 
 function router() {
-	const [ , route = 'top', id = '1' ] = window.location.hash.split('/');
+	const [, route = 'top', id = '1'] = window.location.hash.split('/');
 	if (route === 'user') {
 		context.route = 'user';
 		context.emit({ type: 'invalidate' });
-	}
-	else if (route === 'comments') {
-		if (id !== context.itemId  || context.route !== 'comments') {
+	} else if (route === 'comments') {
+		if (id !== context.itemId || context.route !== 'comments') {
 			context.fetchItem(id);
 		}
-	}
-	else {
+	} else {
 		if (route !== context.category || parseInt(id, 10) !== context.page || context.route !== 'content') {
 			context.fetchStories(route, parseInt(id, 10));
 		}
 	}
-};
+}
 
 window.onhashchange = router;
 router();

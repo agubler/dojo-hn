@@ -4,14 +4,13 @@ import { v, w } from '@dojo/widget-core/d';
 import { MenuItem } from './MenuItem';
 import * as css from './styles/menu.m.css';
 
-const categories = [ 'top', 'new', 'show', 'ask', 'jobs' ];
+const categories = ['top', 'new', 'show', 'ask', 'jobs'];
 
 export interface MenuProperties {
 	currentCategory?: string;
 }
 
 export class Menu extends WidgetBase<MenuProperties> {
-
 	private _logoLoaded = false;
 
 	private _onLogoLoad() {
@@ -24,15 +23,28 @@ export class Menu extends WidgetBase<MenuProperties> {
 
 		return v('nav', { classes: css.root }, [
 			v('a', { href: '#/top/1', classes: css.home }, [
-				v('img', { onload: this._onLogoLoad, classes: this._logoLoaded ? css.logoLoaded : css.logo, src: './img/logo.svg', alt: 'Home' })
+				v('img', {
+					onload: this._onLogoLoad,
+					classes: this._logoLoaded ? css.logoLoaded : css.logo,
+					src: './img/logo.svg',
+					alt: 'Home'
+				})
 			]),
-			v('ol', { classes: css.menuContainer }, categories.map((category) => {
-				return w(MenuItem, {
-					key: category,
-					selected: category === currentCategory,
-					category
-				}, [ category ]);
-			}))
+			v(
+				'ol',
+				{ classes: css.menuContainer },
+				categories.map(category => {
+					return w(
+						MenuItem,
+						{
+							key: category,
+							selected: category === currentCategory,
+							category
+						},
+						[category]
+					);
+				})
+			)
 		]);
 	}
 }

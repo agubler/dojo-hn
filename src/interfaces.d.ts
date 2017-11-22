@@ -1,4 +1,3 @@
-
 export interface CommentItem {
 	user: string | null;
 	content: string;

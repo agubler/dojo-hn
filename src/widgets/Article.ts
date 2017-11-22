@@ -10,12 +10,11 @@ export interface ArticleProperties {
 }
 
 export class Article extends WidgetBase<ArticleProperties> {
-
 	private _articleShell() {
 		const percent = Math.floor(Math.random() * 20 + 80);
 		return [
-			v('h2', { styles: { width: `${percent}%` }, classes: [ css.titleShell, css.animated, css.animatedTitle ] } ),
-			v('p', { classes: [ css.subtitleShell, css.animated, css.animatedSubTitle ] })
+			v('h2', { styles: { width: `${percent}%` }, classes: [css.titleShell, css.animated, css.animatedTitle] }),
+			v('p', { classes: [css.subtitleShell, css.animated, css.animatedSubTitle] })
 		];
 	}
 
@@ -24,32 +23,43 @@ export class Article extends WidgetBase<ArticleProperties> {
 		const commentText = comments_count === 0 ? 'discuss' : `${comments_count} comments`;
 
 		const isComment = url.substr(0, 8) === 'item?id=';
-		const articleLink = v('a', {
-			key: 'article',
-			href: isComment ? `#/comments/${url.substr(8)}` : url,
-			target: isComment ? undefined : 'none'
-		}, [ title ]);
+		const articleLink = v(
+			'a',
+			{
+				key: 'article',
+				href: isComment ? `#/comments/${url.substr(8)}` : url,
+				target: isComment ? undefined : 'none'
+			},
+			[title]
+		);
 
 		return [
-			v('h2', { classes: css.title, styles: {} }, [ articleLink ]),
+			v('h2', { classes: css.title, styles: {} }, [articleLink]),
 			v('p', { classes: css.details }, [
-				v('span', { key: 'points' }, [ `${points || 0} points ${user ? 'by ' : ''}` ]),
-				user ? v('a', {
-					key: 'user',
-					href: `#/user/${user}`,
-					classes: css.link
-				}, [
-					user
-				]) : null,
-				v('span', { key: 'time-ago'}, [ ` ${time_ago} ` ]),
-				v('a', {
-					key: 'comments',
-					href: `#/comments/${id}`,
-					classes: css.link
-				}, [ commentText ])
+				v('span', { key: 'points' }, [`${points || 0} points ${user ? 'by ' : ''}`]),
+				user
+					? v(
+							'a',
+							{
+								key: 'user',
+								href: `#/user/${user}`,
+								classes: css.link
+							},
+							[user]
+						)
+					: null,
+				v('span', { key: 'time-ago' }, [` ${time_ago} `]),
+				v(
+					'a',
+					{
+						key: 'comments',
+						href: `#/comments/${id}`,
+						classes: css.link
+					},
+					[commentText]
+				)
 			])
 		];
-
 	}
 
 	protected render() {
@@ -57,12 +67,15 @@ export class Article extends WidgetBase<ArticleProperties> {
 		const articleNumber = `${(pageNumber - 1) * 30 + index + 1}`;
 
 		return v('article', { classes: css.root }, [
-			v('span', { classes: css.pageNumber }, [ articleNumber ]),
-			v('div', {
-				key: index,
-				classes: css.post
-			}, item ? this._renderArticle(item) : this._articleShell())
+			v('span', { classes: css.pageNumber }, [articleNumber]),
+			v(
+				'div',
+				{
+					key: index,
+					classes: css.post
+				},
+				item ? this._renderArticle(item) : this._articleShell()
+			)
 		]);
 	}
-
 }

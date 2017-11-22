@@ -13,7 +13,6 @@ export interface ContentProperties {
 }
 
 export class Content extends WidgetBase<ContentProperties> {
-
 	protected render() {
 		const { articles = [], pageNumber, category } = this.properties;
 		const articlesNodes: DNode[] = [];
@@ -25,25 +24,33 @@ export class Content extends WidgetBase<ContentProperties> {
 		const nextProps = articles.length === 30 ? { href: `#/${category}/${pageNumber + 1}` } : {};
 
 		const pagination = v('div', { classes: css.pagination }, [
-			v('a', {
-				...prevProps,
-				key: 'prev',
-				classes: css.pageLink,
-				styles: {
-					color: pageNumber > 1 ? '#000' : 'rgba(49, 40, 40, 0.65)'
-				}
-			}, [ '< prev' ]),
-			v('span', { classes: css.pageNumber }, [ `${pageNumber}` ]),
-			v('a', {
-				...nextProps,
-				key: 'next',
-				classes: css.pageLink,
-				styles: {
-					color: articles.length === 30 ? '#000' : 'rgba(49, 40, 40, 0.65)'
-				}
-			}, [ 'next >' ])
+			v(
+				'a',
+				{
+					...prevProps,
+					key: 'prev',
+					classes: css.pageLink,
+					styles: {
+						color: pageNumber > 1 ? '#000' : 'rgba(49, 40, 40, 0.65)'
+					}
+				},
+				['< prev']
+			),
+			v('span', { classes: css.pageNumber }, [`${pageNumber}`]),
+			v(
+				'a',
+				{
+					...nextProps,
+					key: 'next',
+					classes: css.pageLink,
+					styles: {
+						color: articles.length === 30 ? '#000' : 'rgba(49, 40, 40, 0.65)'
+					}
+				},
+				['next >']
+			)
 		]);
 
-		return [ pagination, ...articlesNodes];
+		return [pagination, ...articlesNodes];
 	}
 }
