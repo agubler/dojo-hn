@@ -1,10 +1,8 @@
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
 import { v, w } from '@dojo/widget-core/d';
-
 import { ArticleItem } from './../interfaces';
 import { Comment } from './Comment';
 import { Loading } from './Loading';
-
 import * as css from './styles/comments.m.css';
 
 export interface CommentsProperties {

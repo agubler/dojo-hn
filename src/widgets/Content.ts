@@ -1,7 +1,6 @@
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
 import { w, v } from '@dojo/widget-core/d';
 import { DNode } from '@dojo/widget-core/interfaces';
-
 import { ArticleItem } from './../interfaces';
 import { Article } from './Article';
 import * as css from './styles/content.m.css';

@@ -1,5 +1,4 @@
 import { Container } from '@dojo/widget-core/Container';
-
 import { Context } from './../Context';
 import { Comments, CommentsProperties } from './../widgets/Comments';
 

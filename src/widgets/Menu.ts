@@ -1,6 +1,5 @@
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
 import { v, w } from '@dojo/widget-core/d';
-
 import { MenuItem } from './MenuItem';
 import * as css from './styles/menu.m.css';
 

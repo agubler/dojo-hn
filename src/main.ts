@@ -1,7 +1,6 @@
 import { ProjectorMixin } from '@dojo/widget-core/mixins/Projector';
 import { Registry } from '@dojo/widget-core/Registry';
 import { Context } from './Context';
-
 import { AppContainer } from './containers/AppContainer';
 
 const registry = new Registry();
