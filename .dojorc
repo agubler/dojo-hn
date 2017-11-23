@@ -21,7 +21,7 @@
                     "optional": [ ":rest:" ]
                 },
                 "request": [
-                    { "method": "get", "path": "/*",  "origin": "https://fierce-mountain-33659.herokuapp.com", "strategy": "cacheFirst" }
+                    { "method": "get", "path": "/*",  "origin": "https://dojo-2-hnpwa-d668d.firebaseapp.com", "strategy": "cacheFirst" }
                 ]
             }
         },
