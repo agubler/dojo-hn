@@ -1,6 +1,7 @@
-import { v } from '@dojo/widget-core/d';
+import { v, w } from '@dojo/widget-core/d';
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
 import { ArticleItem } from './../interfaces';
+import { Link } from 'dojo-2-router/Link';
 import * as css from './styles/article.m.css';
 
 export interface ArticleProperties {
@@ -23,14 +24,17 @@ export class Article extends WidgetBase<ArticleProperties> {
 		const commentText = comments_count === 0 ? 'discuss' : `${comments_count} comments`;
 
 		const isComment = url.substr(0, 8) === 'item?id=';
-		const articleLink = v(
-			'a',
+		const articleLink = w(Link,
 			{
 				key: 'article',
-				href: isComment ? `#/comments/${url.substr(8)}` : url,
+				to: isComment ? 'comments' : url,
+				isOutlet: isComment,
+				params: {
+					id: url.substr(8)
+				},
 				target: isComment ? undefined : 'none'
 			},
-			[title]
+			[ title ]
 		);
 
 		return [
@@ -38,22 +42,26 @@ export class Article extends WidgetBase<ArticleProperties> {
 			v('p', { classes: css.details }, [
 				v('span', { key: 'points' }, [`${points || 0} points ${user ? 'by ' : ''}`]),
 				user
-					? v(
-							'a',
+					? w(Link,
 							{
 								key: 'user',
-								href: `#/user/${user}`,
+								to: 'user',
+								params: {
+									user
+								},
 								classes: css.link
 							},
 							[user]
 						)
 					: null,
 				v('span', { key: 'time-ago' }, [` ${time_ago} `]),
-				v(
-					'a',
+				w(Link,
 					{
 						key: 'comments',
-						href: `#/comments/${id}`,
+						to: 'comments',
+						params: {
+							id: `${id}`
+						},
 						classes: css.link
 					},
 					[commentText]

@@ -2,6 +2,7 @@ import { WidgetBase } from '@dojo/widget-core/WidgetBase';
 import { v, w } from '@dojo/widget-core/d';
 import { CommentItem } from './../interfaces';
 import * as css from './styles/comment.m.css';
+import { Link } from 'dojo-2-router/Link';
 
 export interface CommentProperties {
 	comment: CommentItem;
@@ -13,11 +14,13 @@ export class Comment extends WidgetBase<CommentProperties> {
 		return v('div', { classes: css.root }, [
 			v('header', { classes: css.padding }, [
 				user
-					? v(
-							'a',
+					? w(Link,
 							{
 								key: 'user',
-								href: `#/user/${user}`,
+								to: 'user',
+								params: {
+									user
+								},
 								classes: css.user
 							},
 							[user]

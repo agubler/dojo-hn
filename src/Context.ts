@@ -8,17 +8,15 @@ export class Context extends Injector {
 	category: string;
 	page: number;
 	itemId: string;
-	route: string;
 
 	public async fetchStories(category: string, page: number) {
 		const catKey = category === 'top' ? 'news' : category === 'new' ? 'newest' : category;
 		this.page = page;
 		this.category = category;
-		this.route = 'content';
 		this.articles = undefined;
 		this.emit({ type: 'invalidate' });
 		if (!has('build-time-render')) {
-			this.articles = await fetch(`/hn/${catKey}?page=${page}`).then(response =>
+			this.articles = await fetch(`https://node-hnapi.herokuapp.com/${catKey}?page=${page}`).then(response =>
 				response.json()
 			);
 		}
@@ -28,10 +26,9 @@ export class Context extends Injector {
 	public async fetchItem(id: string) {
 		this.item = undefined;
 		this.itemId = id;
-		this.route = 'comments';
 		this.emit({ type: 'invalidate' });
 		if (!has('build-time-render')) {
-			this.item = await fetch(`/hn/item/${id}`).then(response => response.json());
+			this.item = await fetch(`https://node-hnapi.herokuapp.com/item/${id}`).then(response => response.json());
 		}
 		this.emit({ type: 'invalidate' });
 	}

@@ -3,6 +3,7 @@ import { v, w } from '@dojo/widget-core/d';
 import { ArticleItem } from './../interfaces';
 import { Comment } from './Comment';
 import { Loading } from './Loading';
+import { Link } from 'dojo-2-router/Link';
 import * as css from './styles/comments.m.css';
 
 export interface CommentsProperties {
@@ -21,11 +22,13 @@ export class Comments extends WidgetBase<CommentsProperties> {
 						v('p', [
 							`${item.points || 0} points`,
 							item.user
-								? v(
-										'a',
+								? w(Link,
 										{
 											key: 'user',
-											href: `#/user/${item.user}`,
+											to: 'user',
+											params: {
+												user: item.user
+											},
 											classes: css.user
 										},
 										[` by ${item.user}`]

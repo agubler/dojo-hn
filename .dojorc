@@ -13,16 +13,6 @@
                           "sizes": [ 128, 256, 512 ]
                     }
                 ]
-            },
-            "serviceWorker": {
-                "safeToUseOptionalCaches": true,
-                "caches": {
-                    "main": [ "index.html", "**/*.js", "**/*.css", "**/*.svg", "**/*.ico" ],
-                    "optional": [ ":rest:" ]
-                },
-                "request": [
-                    { "method": "get", "path": "/*",  "origin": "https://dojo-2-hnpwa-d668d.firebaseapp.com", "strategy": "cacheFirst" }
-                ]
             }
         },
         "buildTimeRender": {

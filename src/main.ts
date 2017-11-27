@@ -1,32 +1,36 @@
 import { ProjectorMixin } from '@dojo/widget-core/mixins/Projector';
 import { Registry } from '@dojo/widget-core/Registry';
 import { Context } from './Context';
-import { AppContainer } from './containers/AppContainer';
+import { App } from './widgets/App';
+import { Injector } from '@dojo/widget-core/Injector';
+
+import { Router } from 'dojo-2-router/Router';
+import { HashHistory } from 'dojo-2-router/HashHistory';
 
 const registry = new Registry();
 const context = new Context({});
 registry.defineInjector('state', context);
 
-function router() {
-	const [, route = 'top', id = '1'] = window.location.hash.split('/');
-	if (route === 'user') {
-		context.route = 'user';
-		context.emit({ type: 'invalidate' });
-	} else if (route === 'comments') {
-		if (id !== context.itemId || context.route !== 'comments') {
-			context.fetchItem(id);
-		}
-	} else {
-		if (route !== context.category || parseInt(id, 10) !== context.page || context.route !== 'content') {
-			context.fetchStories(route, parseInt(id, 10));
-		}
+const config = [
+	{
+		path: '/comments/{id}',
+		outlet: 'comments'
+	},
+	{
+		path: '/{category}/{page}',
+		outlet: 'content'
 	}
-}
+];
 
-window.onhashchange = router;
-router();
+const router = new Router(HashHistory, config);
 
-const Projector = ProjectorMixin(AppContainer);
+const injector = new Injector(router);
+router.on('navstart', () => {
+	injector.emit({ type: 'invalidate' });
+});
+registry.defineInjector('router', injector);
+
+const Projector = ProjectorMixin(App);
 const projector = new Projector();
 projector.setProperties({ registry });
 projector.merge(document.getElementById('app') || undefined);

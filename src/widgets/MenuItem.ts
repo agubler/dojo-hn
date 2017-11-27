@@ -1,6 +1,7 @@
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
-import { v } from '@dojo/widget-core/d';
+import { v, w } from '@dojo/widget-core/d';
 import * as css from './styles/menuItem.m.css';
+import { Link } from 'dojo-2-router/Link';
 
 export interface MenuItemProperties {
 	selected: boolean;
@@ -12,10 +13,13 @@ export class MenuItem extends WidgetBase<MenuItemProperties> {
 		const { selected, category } = this.properties;
 
 		return v('li', { classes: css.root }, [
-			v(
-				'a',
+			w(Link,
 				{
-					href: `#/${category}/1`,
+					to: 'content',
+					params: {
+						category,
+						page: '1'
+					},
 					classes: [css.item, selected ? css.selected : null]
 				},
 				this.children
