@@ -1,5 +1,6 @@
 {
 	"build-app": {
+		"legacy": false,
 		"features": [ "chrome" ],
 		"pwa": {
 			"manifest": {
