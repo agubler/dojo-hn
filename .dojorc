@@ -24,7 +24,7 @@
 				"routes": [
 					{
 						"urlPattern": "https://dojo-2-hnpwa-updated.firebaseapp.com",
-						"strategy": "networkFirst",
+						"strategy": "cacheFirst",
 						"expiration": {
 							"maxEntries": 25
 						}

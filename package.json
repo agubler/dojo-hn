@@ -5,11 +5,10 @@
     "@dojo/core": "^2.0.0",
     "@dojo/has": "^2.0.0",
     "@dojo/shim": "^2.0.0",
-    "@dojo/widget-core": "^2.0.0"
+    "@dojo/widget-core": "^2.0.2"
   },
   "devDependencies": {
-    "@dojo/cli-build-app": "./deps/dojo-cli-build-app-2.0.1-rc.1.tgz",
-    "@dojo/webpack-contrib": "./deps/dojo-webpack-contrib-2.0.1-rc.1.tgz",
+    "@dojo/cli-build-app": "^2.0.1",
     "typescript": "~2.6.1"
   }
 }
