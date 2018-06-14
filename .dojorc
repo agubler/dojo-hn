@@ -1,7 +1,6 @@
 {
 	"build-app": {
 		"legacy": false,
-		"features": [ "chrome" ],
 		"pwa": {
 			"manifest": {
 				"name": "dojo-2-hn",
@@ -24,8 +23,8 @@
 				"clientsClaim": true,
 				"routes": [
 					{
-						"urlPattern": "https://dojo-2-hnpwa-updated.firebaseapp.com",
-						"strategy": "cacheFirst",
+						"urlPattern": "https://dojo-2-hnpwa-d668d.firebaseapp.com",
+						"strategy": "networkFirst",
 						"expiration": {
 							"maxEntries": 25
 						}

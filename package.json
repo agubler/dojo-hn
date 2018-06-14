@@ -5,7 +5,7 @@
     "@dojo/core": "^2.0.0",
     "@dojo/has": "^2.0.0",
     "@dojo/shim": "^2.0.0",
-    "@dojo/widget-core": "^2.0.2"
+    "@dojo/widget-core": "^2.0.4"
   },
   "devDependencies": {
     "@dojo/cli-build-app": "^2.0.1",
