@@ -4,11 +4,13 @@ This project was generated with the [Dojo CLI](https://github.com/dojo/cli) & [D
 
 ## Build
 
-Run `dojo build` to create a production build for the project. The built artifacts will be stored in the `output/dist` directory.
+To create a production build of the application, run `npm run build:prod`. The built artifacts will be stored in the `output/dist` directory.
+
+To create a developement build of the application, run `npm run build:dev`. The built artifacts will be stored in the `output/dev` directory.
 
 ## Development server
 
-Run `dojo build --watch --dev` to create a development build and watch. Creates the dev artifacts in the `output/dev/` directory.
+To create run the application with a development server, run `npm run build:dev:watch`.
 
 ## Further help
 
