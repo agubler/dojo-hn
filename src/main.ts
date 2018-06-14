@@ -4,14 +4,16 @@ import { Context } from './Context';
 import { AppContainer } from './containers/AppContainer';
 
 const registry = new Registry();
-const context = new Context({});
-registry.defineInjector('state', context);
+let context: Context;
+registry.defineInjector('state', (invalidator) => {
+	context = new Context(invalidator);
+	return () => context;
+});
 
 function router() {
 	const [, route = 'top', id = '1'] = window.location.hash.split('/');
 	if (route === 'user') {
 		context.route = 'user';
-		context.emit({ type: 'invalidate' });
 	} else if (route === 'comments') {
 		if (id !== context.itemId || context.route !== 'comments') {
 			context.fetchItem(id);
