@@ -33,18 +33,17 @@ export class Context {
 		this.articlesInView = undefined;
 		this._invalidator();
 		if (!has('build-time-render')) {
-			const articles: any[] = await fetch(`/hn/${catKey}?page=${page}`, { credentials: 'include' }).then(response =>
-				response.json()
-			);
+			const response = await fetch(`/hn/${catKey}?page=${page}`, { credentials: 'include' });
+			const articles = await response.json();
 			this.articles = articles;
-			this.articlesInView = articles.slice(0, 10);
+			this.articlesInView = articles.slice(0, 5);
 		}
 		this._invalidator();
 	}
 
-	public fetchArticles = () => {
+	public fetchArticles = async () => {
 		if (!has('build-time-render')) {
-			this.articlesInView = this.articles!.slice(0, this.articlesInView!.length + 10);
+			this.articlesInView = this.articles!.slice(0, this.articlesInView!.length + 5);
 			this._invalidator();
 		}
 	}

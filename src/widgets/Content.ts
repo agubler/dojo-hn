@@ -15,24 +15,24 @@ export interface ContentProperties {
 }
 
 export class Content extends WidgetBase<ContentProperties> {
-	private _isLoading = false;
+	private _isFetching = false;
 
 	protected render() {
 		const { articles = [], pageNumber, category, fetchArticles, count } = this.properties;
 		const articlesNodes: DNode[] = [];
-		const length = articles.length || 10;
+		const length = articles.length || 5;
 		for (let index = 0; index < length; index++) {
 			articlesNodes.push(w(Article, { key: index, index, item: articles[index], pageNumber }));
 		}
 		const prevProps = pageNumber > 1 ? { href: `#/${category}/${pageNumber - 1}` } : {};
 		const nextProps = count === 30 ? { href: `#/${category}/${pageNumber + 1}` } : {};
-		const { isIntersecting } = this.meta(Intersection).get('bottom');
+		const { isIntersecting } = this.meta(Intersection).get(`bottom-${pageNumber}`);
 
-		if (isIntersecting && !this._isLoading) {
-			this._isLoading = true;
+		if (isIntersecting && !this._isFetching) {
+			this._isFetching = true;
 			fetchArticles();
 		} else {
-			this._isLoading = false;
+			this._isFetching = false;
 		}
 
 		const pagination = v('div', { classes: css.pagination }, [
@@ -56,15 +56,15 @@ export class Content extends WidgetBase<ContentProperties> {
 					key: 'next',
 					classes: css.pageLink,
 					styles: {
-						color: articles.length === 30 ? '#000' : 'rgba(49, 40, 40, 0.65)'
+						color: count === 30 ? '#000' : 'rgba(49, 40, 40, 0.65)'
 					}
 				},
 				['next >']
 			)
 		]);
 
-		const bottom = v('div', { key: 'bottom' });
+		const bottom = v('div', { key: `bottom-${pageNumber}`, classes: css.bottom });
 
-		return [pagination, ...articlesNodes, bottom];
+		return [pagination, ...articlesNodes, articles.length ? bottom : null];
 	}
 }
