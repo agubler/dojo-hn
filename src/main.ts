@@ -1,3 +1,4 @@
+import 'intersection-observer';
 import { ProjectorMixin } from '@dojo/widget-core/mixins/Projector';
 import { Registry } from '@dojo/widget-core/Registry';
 import { Context } from './Context';

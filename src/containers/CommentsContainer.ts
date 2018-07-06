@@ -11,4 +11,4 @@ function getProperties(context: Context, properties: CommentsProperties): Commen
 	};
 }
 
-export const CommentsContainer = Container(Comments, 'state', { getProperties });
+export default Container(Comments, 'state', { getProperties });

@@ -1,6 +1,12 @@
 .main {
 	margin: 0 auto;
-	max-width: 800px;
+	max-width: 375px;
 	margin-top: 48px;
 	background: white;
+}
+
+@media (min-width: 800px) {
+	.main {
+		max-width: 800px;
+	}
 }

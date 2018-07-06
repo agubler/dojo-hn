@@ -6,6 +6,7 @@ export class Context {
 	private _route: string;
 
 	articles?: ArticleItem[];
+	articlesInView?: ArticleItem[];
 	item?: ArticleItem;
 	category: string;
 	page: number;
@@ -29,13 +30,23 @@ export class Context {
 		this.category = category;
 		this.route = 'content';
 		this.articles = undefined;
+		this.articlesInView = undefined;
 		this._invalidator();
 		if (!has('build-time-render')) {
-			this.articles = await fetch(`/hn/${catKey}?page=${page}`).then(response =>
+			const articles: any[] = await fetch(`/hn/${catKey}?page=${page}`, { credentials: 'include' }).then(response =>
 				response.json()
 			);
+			this.articles = articles;
+			this.articlesInView = articles.slice(0, 10);
 		}
 		this._invalidator();
+	}
+
+	public fetchArticles = () => {
+		if (!has('build-time-render')) {
+			this.articlesInView = this.articles!.slice(0, this.articlesInView!.length + 10);
+			this._invalidator();
+		}
 	}
 
 	public async fetchItem(id: string) {
@@ -44,7 +55,7 @@ export class Context {
 		this.route = 'comments';
 		this._invalidator();
 		if (!has('build-time-render')) {
-			this.item = await fetch(`/hn/item/${id}`).then(response => response.json());
+			this.item = await fetch(`/hn/item/${id}`, { credentials: 'include' }).then(response => response.json());
 		}
 		this._invalidator();
 	}

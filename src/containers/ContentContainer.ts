@@ -4,10 +4,12 @@ import { Content, ContentProperties } from './../widgets/Content';
 
 function getProperties(context: Context, properties: ContentProperties): ContentProperties {
 	return {
-		articles: context.articles,
+		articles: context.articlesInView,
 		category: context.category,
-		pageNumber: context.page
+		pageNumber: context.page,
+		fetchArticles: context.fetchArticles,
+		count: (context.articles || []).length
 	};
 }
 
-export const ContentContainer = Container(Content, 'state', { getProperties });
+export default Container(Content, 'state', { getProperties });

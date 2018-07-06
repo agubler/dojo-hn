@@ -10,6 +10,24 @@
 						"value" : "max-age=30672000"
 					}
 				]
+			},
+			{
+				"source" : "**/service-worker.js",
+				"headers" : [
+					{
+						"key" : "Cache-Control",
+						"value" : "max-age=0"
+					}
+				]
+			},
+			{
+				"source" : "**/workbox-*/*.js",
+				"headers" : [
+					{
+						"key" : "Cache-Control",
+						"value" : "max-age=0"
+					}
+				]
 			}
 		],
 		"ignore": [
@@ -20,10 +38,6 @@
 		"rewrites": [
 			{
 				"source": "/hn/**", "function": "hn"
-			},
-			{
-				"source": "**",
-				"destination": "/index.html"
 			}
 		]
 	}

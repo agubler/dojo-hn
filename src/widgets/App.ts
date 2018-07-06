@@ -1,7 +1,7 @@
 import { v, w } from '@dojo/widget-core/d';
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
-import { ContentContainer } from './../containers/ContentContainer';
-import { CommentsContainer } from './../containers/CommentsContainer';
+import ContentContainer from './../containers/ContentContainer';
+import CommentsContainer from './../containers/CommentsContainer';
 import { MenuContainer } from './../containers/MenuContainer';
 
 import * as css from './styles/app.m.css';

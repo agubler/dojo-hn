@@ -1,6 +1,9 @@
 {
 	"build-app": {
 		"legacy": false,
+		"bundles": {
+			"comments": [ "src/containers/CommentsContainer" ]
+		},
 		"pwa": {
 			"manifest": {
 				"name": "dojo-2-hn",
@@ -23,7 +26,7 @@
 				"clientsClaim": true,
 				"routes": [
 					{
-						"urlPattern": "https://dojo-2-hnpwa-d668d.firebaseapp.com",
+						"urlPattern": "https://dojo-2-hnpwa-updated.firebaseapp.com",
 						"strategy": "networkFirst",
 						"expiration": {
 							"maxEntries": 25
@@ -33,21 +36,7 @@
 			}
 		},
 		"build-time-render": {
-			"root": "app",
-			"paths": [
-				{
-					"path": "#comments/9999",
-					"match": [
-						"#comments\/.*"
-					]
-				},
-				{
-					"path": "#dummy/1",
-					"match": [
-						"#[a-zA-Z]+\/\\d+"
-					]
-				}
-			]
+			"root": "app"
 		}
 	},
 	"test-intern": {}

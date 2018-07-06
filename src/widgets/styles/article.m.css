@@ -2,6 +2,7 @@
 	display: flex;
 	padding: 8px 16px 8px 0;
 	border-bottom: 1px solid rgba(0,0,0,0.07);
+	height: 80px;
 }
 
 .root:first-of-type {
@@ -11,13 +12,20 @@
 .pageNumber {
 	font-size: 24px;
 	margin-right: 16px;
+	margin-top: 26px;
 	text-align: right;
 	min-width: 48px;
 }
 
 .post {
 	display: block;
-	width: 100%;
+	width: 300px;
+}
+
+@media (min-width: 800px) {
+	.post {
+		width: 725px;
+	}
 }
 
 .title a {
@@ -25,12 +33,16 @@
 	margin-bottom: 8px;
 	text-decoration: none;
 	color: #000;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .details {
 	color: #666;
-	font-size: 12px;
+	font-size: 15px;
 	height: 15px;
+	margin-top: 14px;
 }
 
 .link {
@@ -40,8 +52,7 @@
 }
 
 .comments {
-	padding-left: 8px;
-	border-left: 1px solid #ccc;
+	margin-top: 10px;
 }
 
 @keyframes placeHolderShimmer{
@@ -75,11 +86,17 @@
 	background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
 }
 
+.animatedComment {
+	animation-delay: 0.4s;
+	background: #f6f7f8;
+	background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
+}
+
 .titleShell {
 	max-width: 650px;
 	border-radius: 4px;
 	height: 21px;
-	margin-bottom: 6px;
+	margin-bottom: 14px;
 	margin-right: 16px;
 	transition: opacity 0.5s;
 	opacity: 1;
@@ -89,6 +106,16 @@
 	width: 60%;
 	border-radius: 4px;
 	max-width: 350px;
+	height: 15px;
+	padding-bottom: 2px;
+	margin-right: 16px;
+	margin-bottom: 10px;
+}
+
+.commentShell {
+	width: 40%;
+	border-radius: 4px;
+	max-width: 250px;
 	height: 15px;
 	padding-bottom: 2px;
 	margin-right: 16px;
