@@ -21,7 +21,7 @@ function router() {
 		}
 	} else {
 		if (route !== context.category || parseInt(id, 10) !== context.page || context.route !== 'content') {
-			context.fetchStories(route, parseInt(id, 10));
+			context.fetchStories(route, parseInt(id, 10), 0);
 		}
 	}
 }

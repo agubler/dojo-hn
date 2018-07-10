@@ -10,7 +10,7 @@ export interface ContentProperties {
 	articles?: ArticleItem[];
 	category: string;
 	pageNumber: number;
-	fetchArticles(): void;
+	fetchArticles(category: string, page: number, offset: number): void;
 	count: number;
 }
 
@@ -28,9 +28,9 @@ export class Content extends WidgetBase<ContentProperties> {
 		const nextProps = count === 30 ? { href: `#/${category}/${pageNumber + 1}` } : {};
 		const { isIntersecting } = this.meta(Intersection).get(`bottom-${pageNumber}`);
 
-		if (isIntersecting && !this._isFetching) {
+		if (isIntersecting && !this._isFetching && articles.length > 0) {
 			this._isFetching = true;
-			fetchArticles();
+			fetchArticles(category, pageNumber, (articles || []).length);
 		} else {
 			this._isFetching = false;
 		}

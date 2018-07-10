@@ -3,29 +3,38 @@
 		"public": "output/dist",
 		"headers": [
 			{
-				"source" : "**/*.@(svg|css|js|jpg|jpeg|gif|png)",
-				"headers" : [
+				"source": "/",
+				"headers": [
 					{
-						"key" : "Cache-Control",
-						"value" : "max-age=30672000"
+						"key": "Link",
+						"value": "</main.6da8d1e07a8cfff3cce8.bundle.js>;rel=preload;as=script,</main.b70a48f2f7a2e16634818e22932b2ef3.bundle.css>;rel=preload;as=style,</service-worker.js>;rel=preload;as=script,</favicon.ico>;rel=preload;as=image,</hn/news?page=1&offset=0>;rel=preload;as=fetch"
 					}
 				]
 			},
 			{
-				"source" : "**/service-worker.js",
-				"headers" : [
+				"source": "**/*.@(svg|css|js|jpg|jpeg|gif|png)",
+				"headers": [
 					{
-						"key" : "Cache-Control",
-						"value" : "max-age=0"
+						"key": "Cache-Control",
+						"value": "max-age=30672000"
 					}
 				]
 			},
 			{
-				"source" : "**/workbox-*/*.js",
-				"headers" : [
+				"source": "**/service-worker.js",
+				"headers": [
 					{
-						"key" : "Cache-Control",
-						"value" : "max-age=0"
+						"key": "Cache-Control",
+						"value": "max-age=0"
+					}
+				]
+			},
+			{
+				"source": "**/workbox-*/*.js",
+				"headers": [
+					{
+						"key": "Cache-Control",
+						"value": "max-age=0"
 					}
 				]
 			}
@@ -37,7 +46,8 @@
 		],
 		"rewrites": [
 			{
-				"source": "/hn/**", "function": "hn"
+				"source": "/hn/**",
+				"function": "hn"
 			}
 		]
 	}

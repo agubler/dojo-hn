@@ -4,11 +4,11 @@ import { Content, ContentProperties } from './../widgets/Content';
 
 function getProperties(context: Context, properties: ContentProperties): ContentProperties {
 	return {
-		articles: context.articlesInView,
+		articles: context.articles,
 		category: context.category,
 		pageNumber: context.page,
-		fetchArticles: context.fetchArticles,
-		count: (context.articles || []).length
+		fetchArticles: context.fetchStories,
+		count: context.count
 	};
 }
 

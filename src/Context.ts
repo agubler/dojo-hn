@@ -6,11 +6,11 @@ export class Context {
 	private _route: string;
 
 	articles?: ArticleItem[];
-	articlesInView?: ArticleItem[];
 	item?: ArticleItem;
 	category: string;
 	page: number;
 	itemId: string;
+	count = 0;
 
 	get route() {
 		return this._route;
@@ -24,26 +24,21 @@ export class Context {
 		this._invalidator = invalidator;
 	}
 
-	public async fetchStories(category: string, page: number) {
+	public fetchStories = async (category: string, page: number, offset: number) => {
 		const catKey = category === 'top' ? 'news' : category === 'new' ? 'newest' : category;
-		this.page = page;
-		this.category = category;
-		this.route = 'content';
-		this.articles = undefined;
-		this.articlesInView = undefined;
-		this._invalidator();
-		if (!has('build-time-render')) {
-			const response = await fetch(`/hn/${catKey}?page=${page}`, { credentials: 'include' });
-			const articles = await response.json();
-			this.articles = articles;
-			this.articlesInView = articles.slice(0, 5);
+		if (this.page !== page || this.category !== category || this.route !== 'content') {
+			this.page = page;
+			this.category = category;
+			this.route = 'content';
+			this.articles = undefined;
+			this._invalidator();
 		}
-		this._invalidator();
-	}
 
-	public fetchArticles = async () => {
 		if (!has('build-time-render')) {
-			this.articlesInView = this.articles!.slice(0, this.articlesInView!.length + 5);
+			const response = await fetch(`/hn/${catKey}?page=${page}&offset=${offset}`, { credentials: 'include' });
+			const articles = await response.json();
+			this.articles = this.articles ? [ ...this.articles, ...articles.items ] : articles.items;
+			this.count = articles.count;
 			this._invalidator();
 		}
 	}
@@ -55,7 +50,7 @@ export class Context {
 		this._invalidator();
 		if (!has('build-time-render')) {
 			this.item = await fetch(`/hn/item/${id}`, { credentials: 'include' }).then(response => response.json());
+			this._invalidator();
 		}
-		this._invalidator();
 	}
 }
