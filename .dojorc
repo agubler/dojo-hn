@@ -26,7 +26,7 @@
 				"clientsClaim": true,
 				"routes": [
 					{
-						"urlPattern": "https://dojo-2-hnpwa-updated.firebaseapp.com",
+						"urlPattern": "https://dojo-2-hnpwa-d668d.firebaseapp.com",
 						"strategy": "networkFirst",
 						"expiration": {
 							"maxEntries": 25
