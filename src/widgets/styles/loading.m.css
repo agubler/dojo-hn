@@ -1,7 +1,8 @@
 .spinner {
 	width: 40px;
 	height: 40px;
-	margin: 100px auto;
+	margin: auto;
+	margin-top: 10px;
 	background-color: #333;
 	border-radius: 100%;
 	animation: sk-scaleout 1.0s infinite ease-in-out;

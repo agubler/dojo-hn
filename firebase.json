@@ -7,12 +7,12 @@
 				"headers": [
 					{
 						"key": "Link",
-						"value": "</33nZ9JlV.svg>;rel=preload;as=script,</runtime.d41d8cd98f00b204e980.bundle.js>;rel=preload;as=script,</main.fccf6a818a0350334454.bundle.js>;rel=preload;as=script,</main.b70a48f2f7a2e16634818e22932b2ef3.bundle.css>;rel=preload;as=style,</service-worker.js>;rel=preload;as=script,</favicon.ico>;rel=preload;as=image,</hn/news?page=1&offset=0>;rel=preload;as=fetch"
+						"value": "</33nZ9JlV.svg>;rel=preload;as=script,</runtime.d41d8cd98f00b204e980.bundle.js>;rel=preload;as=script,</main.ca3848c2f9668c05028e.bundle.js>;rel=preload;as=script,</main.7a85e7f248561202a92c9d94a355ae40.bundle.css>;rel=preload;as=style,</service-worker.js>;rel=preload;as=script,</favicon.ico>;rel=preload;as=image,</hn/news?page=1&offset=0>;rel=preload;as=fetch"
 					}
 				]
 			},
 			{
-				"source": "**/*.@(svg|css|js|jpg|jpeg|gif|png)",
+				"source": "**/*.@(svg|css|js|jpg|jpeg|gif|png|ico)",
 				"headers": [
 					{
 						"key": "Cache-Control",

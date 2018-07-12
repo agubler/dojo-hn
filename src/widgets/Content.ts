@@ -5,6 +5,7 @@ import { Intersection } from '@dojo/widget-core/meta/Intersection';
 import { ArticleItem } from './../interfaces';
 import { Article } from './Article';
 import * as css from './styles/content.m.css';
+import { Loading } from './Loading';
 
 export interface ContentProperties {
 	articles?: ArticleItem[];
@@ -20,7 +21,7 @@ export class Content extends WidgetBase<ContentProperties> {
 	protected render() {
 		const { articles = [], pageNumber, category, fetchArticles, count } = this.properties;
 		const articlesNodes: DNode[] = [];
-		const length = articles.length || 5;
+		const length = articles.length || 10;
 		for (let index = 0; index < length; index++) {
 			articlesNodes.push(w(Article, { key: index, index, item: articles[index], pageNumber }));
 		}
@@ -28,7 +29,7 @@ export class Content extends WidgetBase<ContentProperties> {
 		const nextProps = count === 30 ? { href: `#/${category}/${pageNumber + 1}` } : {};
 		const { isIntersecting } = this.meta(Intersection).get(`bottom-${pageNumber}`);
 
-		if (isIntersecting && !this._isFetching && articles.length > 0) {
+		if (isIntersecting && !this._isFetching && articles.length !== count) {
 			this._isFetching = true;
 			fetchArticles(category, pageNumber, (articles || []).length);
 		} else {
@@ -65,6 +66,11 @@ export class Content extends WidgetBase<ContentProperties> {
 
 		const bottom = v('div', { key: `bottom-${pageNumber}`, classes: css.bottom });
 
-		return [pagination, ...articlesNodes, articles.length ? bottom : null];
+		return [
+			pagination,
+			...articlesNodes,
+			articles.length ? bottom : null,
+			this._isFetching ? w(Loading, {}) : null
+		];
 	}
 }
