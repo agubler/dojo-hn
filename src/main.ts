@@ -1,6 +1,7 @@
 import 'intersection-observer';
-import { ProjectorMixin } from '@dojo/widget-core/mixins/Projector';
-import { Registry } from '@dojo/widget-core/Registry';
+import { Registry } from '@dojo/framework/widget-core/Registry';
+import { renderer } from '@dojo/framework/widget-core/vdom';
+import { w } from '@dojo/framework/widget-core/d';
 import { Context } from './Context';
 import { AppContainer } from './containers/AppContainer';
 
@@ -29,7 +30,5 @@ function router() {
 window.onhashchange = router;
 router();
 
-const Projector = ProjectorMixin(AppContainer);
-const projector = new Projector();
-projector.setProperties({ registry });
-projector.merge(document.getElementById('app') || undefined);
+const r = renderer(() => w(AppContainer, {}));
+r.mount({ domNode: document.getElementById('app') as HTMLElement, registry });
