@@ -7,7 +7,7 @@
 				"headers": [
 					{
 						"key": "Link",
-						"value": "</33nZ9JlV.svg>;rel=preload;as=script,</runtime.d41d8cd98f00b204e980.bundle.js>;rel=preload;as=script,</main.11aba6440e94439233b2.bundle.js>;rel=preload;as=script,</main.71192ddcf6a1b0891e8f6acb1a9fb180.bundle.css>;rel=preload;as=style,</service-worker.js>;rel=preload;as=script,</favicon.ico>;rel=preload;as=image,</hn/news?page=1&offset=0>;rel=preload;as=fetch"
+						"value": "</logo.33nZ9JlV.svg>;rel=preload;as=script,</runtime.d41d8cd98f00b204e980.bundle.js>;rel=preload;as=script,</main.11aba6440e94439233b2.bundle.js>;rel=preload;as=script,</main.71192ddcf6a1b0891e8f6acb1a9fb180.bundle.css>;rel=preload;as=style,</service-worker.js>;rel=preload;as=script,</favicon.ico>;rel=preload;as=image,</hn/news?page=1&offset=0>;rel=preload;as=fetch"
 					}
 				]
 			},
